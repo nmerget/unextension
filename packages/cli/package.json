@@ -1,0 +1,34 @@
+{
+  "name": "@unextension/cli",
+  "version": "0.0.1",
+  "description": "Build universal IDE extensions from web apps",
+  "type": "module",
+  "bin": {
+    "unextension": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "cac": "7.0.0",
+    "cosmiconfig": "9.0.1",
+    "cosmiconfig-typescript-loader": "6.3.0",
+    "fs-extra": "11.3.4",
+    "rollup": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "11.0.4",
+    "@types/node": "24.12.2",
+    "typescript": "6.0.3"
+  }
+}

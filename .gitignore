@@ -1,0 +1,24 @@
+# Deps
+node_modules/
+
+# Build
+dist/
+out/
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Generated outputs
+output/
+/packages/docs/.astro/
+
+# Local AI agent overrides (machine-specific, not shared)
+AGENTS.override.md
+

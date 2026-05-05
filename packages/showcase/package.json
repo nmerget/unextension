@@ -1,0 +1,30 @@
+{
+  "name": "@unextension/showcase",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "sync": "unextension sync",
+    "build": "vite build && unextension sync",
+    "build:jetbrains": "unextension build jetbrains",
+    "build:vscode": "unextension build vscode",
+    "dev:jetbrains": "unextension dev jetbrains",
+    "dev:vscode": "unextension dev vscode"
+  },
+  "dependencies": {
+    "@unextension/bridge": "workspace:*",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "react-router-dom": "7.6.2"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@unextension/cli": "workspace:*",
+    "@vitejs/plugin-react": "6.0.1",
+    "typescript": "6.0.3",
+    "vite": "8.0.10",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}
