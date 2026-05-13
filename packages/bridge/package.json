@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Runtime bridge API for unextension plugins",
   "type": "module",
+  "main": "./dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
