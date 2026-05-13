@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@unextension/showcase", "@unextension/docs","@unextension/showcase-e2e"]
+  "ignore": ["@unextension/showcase", "@unextension/docs", "@unextension/showcase-e2e"]
 }
