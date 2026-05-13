@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "sync": "pnpm exec unextension sync",
-    "build": "vite build && node scripts/build.mjs && pnpm exec unextension sync",
-    "build:jetbrains": "pnpm exec unextension build jetbrains",
-    "build:vscode": "pnpm exec unextension build vscode",
-    "dev:jetbrains": "pnpm exec unextension dev jetbrains",
-    "dev:vscode": "pnpm exec unextension dev vscode"
+    "sync": "node ../cli/dist/cli.js sync",
+    "build": "vite build && node scripts/build.mjs && node ../cli/dist/cli.js sync",
+    "build:jetbrains": "node ../cli/dist/cli.js build jetbrains",
+    "build:vscode": "node ../cli/dist/cli.js build vscode",
+    "dev:jetbrains": "node ../cli/dist/cli.js dev jetbrains",
+    "dev:vscode": "node ../cli/dist/cli.js dev vscode"
   },
   "dependencies": {
     "@unextension/bridge": "workspace:*",
