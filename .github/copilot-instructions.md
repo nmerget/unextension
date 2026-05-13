@@ -29,4 +29,3 @@ Follow the rules in AGENTS.md at the repo root.
 - After any CLI change, rebuild before testing: `pnpm --filter @unextension/cli build`
 - Every view route in `unextension.config.ts` must have a matching file in `packages/showcase/src/routes/`
 - When adding a docs page, always add it to the sidebar in `packages/docs/astro.config.mjs`
-

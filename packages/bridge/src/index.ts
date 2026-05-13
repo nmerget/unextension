@@ -1,49 +1,76 @@
 type MessageHandler = (message: unknown) => void
 
+interface VsCodeApi {
+  postMessage(msg: unknown): void
+}
+
+type HostWindow = Window & {
+  __unextension_jb_bridge?: (message: string) => void
+  acquireVsCodeApi?: () => VsCodeApi
+}
+
 interface Bridge {
   postMessage(type: string, payload?: unknown): void
   onMessage(handler: MessageHandler): () => void
+  request<T = unknown>(type: string, payload?: unknown): Promise<T>
 }
 
 function createBridge(): Bridge {
   const handlers = new Set<MessageHandler>()
-  // Lazily acquire the VS Code API to avoid issues with SSR/prerender
-  // acquireVsCodeApi() can only be called once — cache the result
-  let _vscodeApi: { postMessage: (msg: unknown) => void } | undefined | null = undefined
+  const pending = new Map<string, (payload: unknown) => void>()
+
+  let _vscodeApi: VsCodeApi | undefined | null = undefined
+
+  function getHostWindow(): HostWindow | null {
+    return typeof window !== 'undefined' ? (window as HostWindow) : null
+  }
 
   function getVsCodeApi() {
     if (_vscodeApi !== undefined) return _vscodeApi
-    _vscodeApi = typeof window !== 'undefined'
-      ? (window as any).acquireVsCodeApi?.()
-      : null
+    _vscodeApi = getHostWindow()?.acquireVsCodeApi?.() ?? null
     return _vscodeApi ?? null
   }
 
   if (typeof window !== 'undefined') {
     window.addEventListener('message', (event) => {
+      const data = event.data as { type?: string; payload?: unknown; correlationId?: string }
+      if (data?.correlationId && pending.has(data.correlationId)) {
+        pending.get(data.correlationId)!(data.payload)
+        pending.delete(data.correlationId)
+      }
       for (const handler of handlers) {
         handler(event.data)
       }
     })
   }
 
+  function send(type: string, payload?: unknown, correlationId?: string) {
+    if (typeof window === 'undefined') return
+    const msg = { type, payload, ...(correlationId ? { correlationId } : {}) }
+    const vscodeApi = getVsCodeApi()
+    if (vscodeApi) {
+      vscodeApi.postMessage(msg)
+      return
+    }
+    const jbBridge = getHostWindow()?.__unextension_jb_bridge
+    if (jbBridge) {
+      jbBridge(JSON.stringify(msg))
+      return
+    }
+    console.warn('[unextension] No bridge available')
+  }
+
   return {
     postMessage(type, payload) {
-      if (typeof window === 'undefined') return
+      send(type, payload)
+    },
 
-      const vscodeApi = getVsCodeApi()
-      if (vscodeApi) {
-        vscodeApi.postMessage({ type, payload })
-        return
-      }
-
-      const jbBridge = (window as any).__unextension_jb_bridge
-      if (jbBridge) {
-        jbBridge(JSON.stringify({ type, payload }))
-        return
-      }
-
-      console.warn('[unextension] No bridge available')
+    request<T = unknown>(type: string, payload?: unknown): Promise<T> {
+      return new Promise((resolve) => {
+        const correlationId = Math.random().toString(36).slice(2)
+        pending.set(correlationId, (p) => resolve(p as T))
+        send(type, payload, correlationId)
+      })
     },
 
     onMessage(handler) {
@@ -55,3 +82,15 @@ function createBridge(): Bridge {
 
 export const bridge = createBridge()
 export { type Bridge, type MessageHandler }
+export { listProjectFiles } from './actions/listProjectFiles.js'
+export { runCommand } from './actions/runCommand.js'
+export { notify } from './actions/notify.js'
+export { readProjectFile } from './actions/readProjectFile.js'
+export { writeProjectFile } from './actions/writeProjectFile.js'
+export { runScript } from './actions/runScript.js'
+export type { ListProjectFilesOptions } from './actions/listProjectFiles.js'
+export type { RunCommandResult, RunCommandOptions, Shell } from './actions/runCommand.js'
+export type { NotifyLevel } from './actions/notify.js'
+export type { ReadProjectFileResult } from './actions/readProjectFile.js'
+export type { WriteProjectFileResult } from './actions/writeProjectFile.js'
+export type { RunScriptResult } from './actions/runScript.js'

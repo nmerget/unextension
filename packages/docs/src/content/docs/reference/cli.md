@@ -42,10 +42,10 @@ npx unextension dev jetbrains
 npx unextension dev [targets...] [--cwd <dir>]
 ```
 
-| Target | What it does |
-|--------|-------------|
-| `vscode` | Runs `unextension sync` then launches VS Code in Extension Development Host mode with `--extensionDevelopmentPath` pointing to `output/vscode/` |
-| `jetbrains` | Runs `unextension sync` then runs `gradlew runIde` in `output/jetbrains/` — downloads and launches a sandboxed IDE with the plugin installed |
+| Target      | What it does                                                                                                                                    |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vscode`    | Runs `unextension sync` then launches VS Code in Extension Development Host mode with `--extensionDevelopmentPath` pointing to `output/vscode/` |
+| `jetbrains` | Runs `unextension sync` then runs `gradlew runIde` in `output/jetbrains/` — downloads and launches a sandboxed IDE with the plugin installed    |
 
 ### Updating after source changes
 
@@ -58,8 +58,6 @@ npx unextension dev [targets...] [--cwd <dir>]
 :::tip
 VS Code's Extension Development Host reloads the extension when you reload the window — no need to reinstall or repackage during development.
 :::
-
-
 
 Runs the native build for one or both targets.
 
@@ -74,8 +72,7 @@ npx unextension build jetbrains
 npx unextension build [targets...] [--cwd <dir>]
 ```
 
-| Target | What it runs |
-|--------|-------------|
-| `vscode` | `npm install` + `vsce package` in `output/vscode/` |
-| `jetbrains` | `gradlew build` in `output/jetbrains/` |
-
+| Target      | What it runs                                       |
+| ----------- | -------------------------------------------------- |
+| `vscode`    | `npm install` + `vsce package` in `output/vscode/` |
+| `jetbrains` | `gradlew build` in `output/jetbrains/`             |

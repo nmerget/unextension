@@ -1,0 +1,62 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  background: var(--ide-bg, #1e1e1e);
+  color: var(--ide-fg, #d4d4d4);
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+button {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--ide-border, #3c3c3c);
+  border-radius: 4px;
+  background: var(--ide-selection-bg, #0e639c);
+  color: var(--ide-selection-fg, #fff);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+.view {
+  padding: 1.25rem;
+  max-width: 640px;
+}
+
+.kitchen-sink {
+  margin-bottom: 1rem;
+}
+
+.kitchen-sink__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.log {
+  font-family: monospace;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}

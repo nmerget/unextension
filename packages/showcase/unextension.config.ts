@@ -9,6 +9,7 @@ export default defineConfig({
   icon: './src/assets/icon.svg',
   distDir: './dist',
   spa: true,
+  scriptsDir: './dist/scripts',
   targets: ['vscode', 'jetbrains'],
   jetbrains: {
     ideVersion: '2025.1',

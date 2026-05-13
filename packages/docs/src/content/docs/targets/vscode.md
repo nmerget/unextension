@@ -73,4 +73,5 @@ export default defineConfig({
   repository: 'https://github.com/your-user/your-repo',
 })
 ```
+
 :::

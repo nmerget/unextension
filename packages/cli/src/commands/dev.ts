@@ -3,11 +3,10 @@ import os from 'node:os'
 import fs from 'fs-extra'
 import { spawnSync, spawn } from 'node:child_process'
 import { loadConfig } from '../loader.js'
-import { sync } from './sync.js'
 
 export async function dev(cwd: string, targets?: string[]) {
   const config = await loadConfig(cwd)
-  const resolvedTargets = targets?.length ? targets : config.targets ?? ['vscode', 'jetbrains']
+  const resolvedTargets = targets?.length ? targets : (config.targets ?? ['vscode', 'jetbrains'])
 
   console.log(`\n⚡ unextension dev — ${config.displayName} v${config.version}\n`)
 
@@ -15,8 +14,8 @@ export async function dev(cwd: string, targets?: string[]) {
   console.log('  🔄 Syncing extension scaffold...')
   // Pass devMode so generated Kotlin opens DevTools
   const devConfig = { ...config, jetbrains: { ...config.jetbrains, _devMode: true } }
-  const { buildVSCode } = await import('../targets/vscode.js')
-  const { buildJetBrains } = await import('../targets/jetbrains.js')
+  const { buildVSCode } = await import('../targets/vscode/index.js')
+  const { buildJetBrains } = await import('../targets/jetbrains/index.js')
   if (resolvedTargets.includes('vscode')) await buildVSCode(devConfig, cwd)
   if (resolvedTargets.includes('jetbrains')) await buildJetBrains(devConfig, cwd)
 
@@ -34,7 +33,7 @@ async function devJetBrains(cwd: string) {
   const isWin = os.platform() === 'win32'
   const gradlew = path.join(outDir, isWin ? 'gradlew.bat' : 'gradlew')
 
-  if (!await fs.pathExists(gradlew)) {
+  if (!(await fs.pathExists(gradlew))) {
     throw new Error(`Gradle wrapper not found at ${gradlew}\nRun "unextension sync" first.`)
   }
 
@@ -56,13 +55,13 @@ async function devVSCode(cwd: string) {
   const isWin = os.platform() === 'win32'
   const npm = isWin ? 'npm.cmd' : 'npm'
 
-  if (!await fs.pathExists(outDir)) {
+  if (!(await fs.pathExists(outDir))) {
     throw new Error(`VS Code output not found at ${outDir}\nRun "unextension sync" first.`)
   }
 
   // Install deps if needed
   const nodeModules = path.join(outDir, 'node_modules')
-  if (!await fs.pathExists(nodeModules)) {
+  if (!(await fs.pathExists(nodeModules))) {
     console.log('  📦 Installing VS Code extension dependencies...')
     const install = spawnSync(npm, ['install'], {
       cwd: outDir,
@@ -100,8 +99,20 @@ function resolveCodeExecutable(): string | null {
     ? [
         'code.cmd',
         'code-insiders.cmd',
-        path.join(process.env['LOCALAPPDATA'] ?? '', 'Programs', 'Microsoft VS Code', 'bin', 'code.cmd'),
-        path.join(process.env['LOCALAPPDATA'] ?? '', 'Programs', 'Microsoft VS Code Insiders', 'bin', 'code-insiders.cmd'),
+        path.join(
+          process.env['LOCALAPPDATA'] ?? '',
+          'Programs',
+          'Microsoft VS Code',
+          'bin',
+          'code.cmd',
+        ),
+        path.join(
+          process.env['LOCALAPPDATA'] ?? '',
+          'Programs',
+          'Microsoft VS Code Insiders',
+          'bin',
+          'code-insiders.cmd',
+        ),
       ]
     : [
         'code',
@@ -112,14 +123,17 @@ function resolveCodeExecutable(): string | null {
       ]
 
   for (const candidate of candidates) {
-    const probe = spawnSync(isWin ? 'where' : 'which', [candidate.includes(path.sep) ? path.basename(candidate) : candidate], {
-      encoding: 'utf8',
-      shell: isWin,
-    })
+    const probe = spawnSync(
+      isWin ? 'where' : 'which',
+      [candidate.includes(path.sep) ? path.basename(candidate) : candidate],
+      {
+        encoding: 'utf8',
+        shell: isWin,
+      },
+    )
     if (probe.status === 0 && probe.stdout.trim()) return candidate
     // For absolute paths, check existence directly
     if (candidate.includes(path.sep) && fs.existsSync(candidate)) return candidate
   }
   return null
 }
-

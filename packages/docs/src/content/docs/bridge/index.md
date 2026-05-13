@@ -17,9 +17,9 @@ pnpm add @unextension/bridge
 
 Your web app runs inside a WebView. The bridge abstracts the different messaging APIs each IDE provides:
 
-| IDE | Underlying mechanism |
-|-----|---------------------|
-| VS Code | `acquireVsCodeApi().postMessage` / `window.onmessage` |
+| IDE       | Underlying mechanism                                  |
+| --------- | ----------------------------------------------------- |
+| VS Code   | `acquireVsCodeApi().postMessage` / `window.onmessage` |
 | JetBrains | `window.__unextension_jb_bridge` / `window.onmessage` |
 
 You never need to think about which IDE you're in — just use the bridge.
@@ -43,6 +43,7 @@ unsubscribe()
 
 ## Sections
 
-- [Messaging](./messaging) — `postMessage` and `onMessage`
+- [Messaging](./messaging) — `postMessage`, `onMessage` and `request`
+- [Actions](./actions) — built-in actions: `listProjectFiles`, `runCommand`, `notify`, `readProjectFile`, `writeProjectFile`, `runScript`
+- [Scripts](./scripts) — writing and bundling Node.js scripts for `runScript`
 - [Types](./types) — TypeScript interfaces and types
-

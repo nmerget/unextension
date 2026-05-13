@@ -1,6 +1,6 @@
 import { loadConfig } from '../loader.js'
-import { buildVSCode } from '../targets/vscode.js'
-import { buildJetBrains } from '../targets/jetbrains.js'
+import { buildVSCode } from '../targets/vscode/index.js'
+import { buildJetBrains } from '../targets/jetbrains/index.js'
 
 export async function sync(cwd: string) {
   const config = await loadConfig(cwd)

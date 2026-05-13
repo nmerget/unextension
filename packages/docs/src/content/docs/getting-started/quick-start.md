@@ -51,4 +51,3 @@ npx unextension build vscode
 # Build only JetBrains
 npx unextension build jetbrains
 ```
-

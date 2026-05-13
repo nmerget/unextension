@@ -52,4 +52,3 @@ Array of target platforms to generate. Defaults to `['vscode', 'jetbrains']`.
 ### `jetbrains.downloadGradleWrapper`
 
 Whether to automatically download the `gradle-wrapper.jar` during `sync`. Defaults to `true`.
-

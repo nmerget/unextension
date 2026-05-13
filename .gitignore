@@ -19,6 +19,10 @@ Thumbs.db
 output/
 /packages/docs/.astro/
 
+# VS Code test downloads
+.vscode-test/
+
 # Local AI agent overrides (machine-specific, not shared)
 AGENTS.override.md
 
+.kiro

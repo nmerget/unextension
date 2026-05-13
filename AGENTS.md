@@ -49,12 +49,12 @@ The docs live in `packages/docs/src/content/docs/`. The sidebar is configured in
 
 You **must** update the corresponding docs:
 
-| Changed | Update |
-|---------|--------|
-| Any exported function or type | `packages/docs/src/content/docs/bridge/` |
-| `bridge.postMessage` / `bridge.onMessage` | `packages/docs/src/content/docs/bridge/messaging.md` |
-| TypeScript types (`Bridge`, `MessageHandler`) | `packages/docs/src/content/docs/bridge/types.md` |
-| New feature added to bridge | Create a new page in `packages/docs/src/content/docs/bridge/` and add it to the sidebar in `astro.config.mjs` |
+| Changed                                       | Update                                                                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Any exported function or type                 | `packages/docs/src/content/docs/bridge/`                                                                      |
+| `bridge.postMessage` / `bridge.onMessage`     | `packages/docs/src/content/docs/bridge/messaging.md`                                                          |
+| TypeScript types (`Bridge`, `MessageHandler`) | `packages/docs/src/content/docs/bridge/types.md`                                                              |
+| New feature added to bridge                   | Create a new page in `packages/docs/src/content/docs/bridge/` and add it to the sidebar in `astro.config.mjs` |
 
 ### When you change `packages/cli/src/config.ts`
 
@@ -70,21 +70,21 @@ You **must** update:
 
 - `packages/docs/src/content/docs/reference/cli.md` — keep every command's description, flags, and behaviour in sync
 
-| File | Command |
-|------|---------|
-| `commands/init.ts` | `unextension init` |
-| `commands/sync.ts` | `unextension sync` |
+| File                | Command             |
+| ------------------- | ------------------- |
+| `commands/init.ts`  | `unextension init`  |
+| `commands/sync.ts`  | `unextension sync`  |
 | `commands/build.ts` | `unextension build` |
-| `commands/dev.ts` | `unextension dev` |
+| `commands/dev.ts`   | `unextension dev`   |
 
 ### When you change `packages/cli/src/targets/`
 
 You **must** update:
 
-| File | Docs page |
-|------|-----------|
-| `targets/vscode.ts` | `packages/docs/src/content/docs/targets/vscode.md` |
-| `targets/jetbrains.ts` | `packages/docs/src/content/docs/targets/jetbrains.md` |
+| File                         | Docs page                                             |
+| ---------------------------- | ----------------------------------------------------- |
+| `targets/vscode/index.ts`    | `packages/docs/src/content/docs/targets/vscode.md`    |
+| `targets/jetbrains/index.ts` | `packages/docs/src/content/docs/targets/jetbrains.md` |
 
 This includes changes to: generated file structure, build steps, generated `package.json` fields, `plugin.xml` structure, Gradle configuration, view/toolwindow registration.
 
@@ -107,7 +107,13 @@ Always update `packages/docs/astro.config.mjs` to include the new page in the co
 ## CLI Package Rules
 
 - Commands live in `packages/cli/src/commands/` — one file per command
-- Target generators live in `packages/cli/src/targets/` — one file per target
+- Target generators live in `packages/cli/src/targets/` — one folder per target (`vscode/`, `jetbrains/`)
+  - `index.ts` — scaffolding (package.json, plugin.xml, gradle, icons)
+  - `extension.ts` / `toolwindow.ts` — code generation
+  - `actions.ts` — loader that reads action files and assembles the message handler
+  - `actions/` — one file per bridge action (`.js` for VS Code, `.kt` for JetBrains)
+  - `actions/globals.js` — ambient type declarations for VS Code action files (IDE only, not emitted)
+- `targets/shared.ts` — utilities shared by both targets (`toPascalCase`, `escapeXml`, icon SVGs)
 - All config types are defined in `packages/cli/src/config.ts` — this is the single source of truth
 - The public API (exported from `packages/cli/src/index.ts`) must export `defineConfig` and all config types so consumers get type safety in their `unextension.config.ts`
 - After any change to `packages/cli/src/`, rebuild with `pnpm run build`
@@ -120,6 +126,31 @@ Always update `packages/docs/astro.config.mjs` to include the new page in the co
 - The bridge must remain side-effect free at import time (no DOM access at module load)
 - All exports must be typed — no `any` in the public API
 - The `bridge` singleton is created once via `createBridge()` and exported
+- Actions live in `packages/bridge/src/actions/` — one file per action
+- **Every new action added to `packages/bridge/src/actions/` must also get a test button in `packages/showcase/src/components/KitchenSink.tsx`**
+
+### Adding a new bridge action — full checklist
+
+When adding a new action (e.g. `myAction`):
+
+1. **`packages/bridge/src/actions/myAction.ts`** — typed wrapper calling `bridge.request('my-action', payload)`
+2. **`packages/bridge/src/index.ts`** — re-export the function and its types
+3. **`packages/cli/src/targets/vscode/actions/my-action.js`** — JSDoc-typed JS function `async function myAction(payload, reply)` with `// @ts-check` and `/// <reference path="./globals.js" />`
+4. **`packages/cli/src/targets/jetbrains/actions/MyAction.kt`** — Kotlin function `fun handleMyAction(payload: org.json.JSONObject?, reply: org.json.JSONObject)`. Use `fun handleMyAction(..., project: Project)` if IDE project access is needed.
+5. **`packages/showcase/src/components/KitchenSink.tsx`** — add a test button that calls the new action and logs the result
+
+#### Naming conventions
+
+| Layer                   | Convention            | Example                          |
+| ----------------------- | --------------------- | -------------------------------- |
+| Bridge action file      | camelCase `.ts`       | `myAction.ts`                    |
+| Message type (wire)     | kebab-case            | `my-action`                      |
+| VS Code action file     | kebab-case `.js`      | `my-action.js`                   |
+| VS Code function name   | camelCase             | `myAction(payload, reply)`       |
+| JetBrains action file   | PascalCase `.kt`      | `MyAction.kt`                    |
+| JetBrains function name | `handle` + PascalCase | `handleMyAction(payload, reply)` |
+
+The loaders in `vscode/actions.ts` and `jetbrains/actions.ts` auto-discover files by reading the `actions/` directory — **no manual registration needed**. The message type is derived from the filename automatically.
 
 ---
 
@@ -138,15 +169,17 @@ Always update `packages/docs/astro.config.mjs` to include the new page in the co
 
 Use this as a quick reference when making changes:
 
-| You change… | Also update… |
-|-------------|-------------|
-| `packages/bridge/src/index.ts` | `packages/docs/src/content/docs/bridge/` |
-| `packages/cli/src/config.ts` | `packages/docs/src/content/docs/configuration/config-file.md` |
-| `packages/cli/src/commands/init.ts` | `packages/docs/src/content/docs/reference/cli.md` |
-| `packages/cli/src/commands/sync.ts` | `packages/docs/src/content/docs/reference/cli.md` |
-| `packages/cli/src/commands/build.ts` | `packages/docs/src/content/docs/reference/cli.md` |
-| `packages/cli/src/targets/vscode.ts` | `packages/docs/src/content/docs/targets/vscode.md` |
-| `packages/cli/src/targets/jetbrains.ts` | `packages/docs/src/content/docs/targets/jetbrains.md` |
-| `packages/docs/astro.config.mjs` sidebar | All referenced slug files must exist |
-| `packages/showcase/unextension.config.ts` views | `packages/showcase/src/routes/` (each route must exist) |
-
+| You change…                                     | Also update…                                                                                                                                                                            |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/bridge/src/index.ts`                  | `packages/docs/src/content/docs/bridge/`                                                                                                                                                |
+| `packages/bridge/src/actions/` (new action)     | `packages/cli/src/targets/vscode/actions/` (add `.js`), `packages/cli/src/targets/jetbrains/actions/` (add `.kt`), `packages/showcase/src/components/KitchenSink.tsx` (add test button) |
+| `packages/cli/src/targets/vscode/actions/`      | `packages/bridge/src/actions/` (matching action must exist)                                                                                                                             |
+| `packages/cli/src/targets/jetbrains/actions/`   | `packages/bridge/src/actions/` (matching action must exist)                                                                                                                             |
+| `packages/cli/src/config.ts`                    | `packages/docs/src/content/docs/configuration/config-file.md`                                                                                                                           |
+| `packages/cli/src/commands/init.ts`             | `packages/docs/src/content/docs/reference/cli.md`                                                                                                                                       |
+| `packages/cli/src/commands/sync.ts`             | `packages/docs/src/content/docs/reference/cli.md`                                                                                                                                       |
+| `packages/cli/src/commands/build.ts`            | `packages/docs/src/content/docs/reference/cli.md`                                                                                                                                       |
+| `packages/cli/src/targets/vscode/index.ts`      | `packages/docs/src/content/docs/targets/vscode.md`                                                                                                                                      |
+| `packages/cli/src/targets/jetbrains/index.ts`   | `packages/docs/src/content/docs/targets/jetbrains.md`                                                                                                                                   |
+| `packages/docs/astro.config.mjs` sidebar        | All referenced slug files must exist                                                                                                                                                    |
+| `packages/showcase/unextension.config.ts` views | `packages/showcase/src/routes/` (each route must exist)                                                                                                                                 |

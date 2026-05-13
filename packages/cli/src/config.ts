@@ -34,7 +34,7 @@ export interface VSCodeConfig {
 
 export type ViewLocation =
   | 'sidebar'
-  | 'panel'  // JetBrains: bottom tool window; VS Code: status bar item that opens a webview panel
+  | 'panel' // JetBrains: bottom tool window; VS Code: status bar item that opens a webview panel
   | 'editor'
 
 export interface ViewConfig {
@@ -69,6 +69,12 @@ export interface UnextensionConfig {
   icon?: string
   /** Path to the built web app (default: './dist') */
   distDir?: string
+  /**
+   * Path to a folder of Node.js scripts that can be called from the webview via `runScript(name, payload)`.
+   * Scripts receive the payload as a parsed object and must export a default async function.
+   * They are copied to the extension output and executed in a sandboxed Node.js process.
+   */
+  scriptsDir?: string
   /**
    * Enable SPA mode. All views share a single shell HTML; the active route is set via window.__UNEXTENSION_ROUTE__.
    * - true: uses 'index.html' as the shell

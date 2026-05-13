@@ -4,6 +4,8 @@ description: Write your IDE plugin as a web app. Build once, deploy to VS Code a
 template: splash
 hero:
   tagline: Write your IDE plugin as a web app. Build once, deploy to VS Code and JetBrains — like Capacitor, but for IDE extensions.
+  image:
+    file: ../../assets/unextension_logo.png
   actions:
     - text: Get Started
       link: ./getting-started/introduction/
@@ -14,22 +16,24 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components'
 
 ## Why unextension?
 
 <CardGrid stagger>
   <Card title="Write once" icon="approve-check">
-    Build your plugin UI as a standard web app with any framework — React, Vue, Svelte, or plain HTML.
+    Build your plugin UI as a standard web app with any framework — React, Vue, Svelte, or plain
+    HTML.
   </Card>
   <Card title="Deploy everywhere" icon="rocket">
-    Generate a VS Code extension and a JetBrains plugin from the same codebase with a single command.
+    Generate a VS Code extension and a JetBrains plugin from the same codebase with a single
+    command.
   </Card>
   <Card title="Universal bridge" icon="puzzle">
-    Use the `@unextension/bridge` API to interact with the editor — file system, workspace, UI — in a target-agnostic way.
+    Use the `@unextension/bridge` API to interact with the editor — file system, workspace, UI — in
+    a target-agnostic way.
   </Card>
   <Card title="CLI-driven" icon="setting">
     `unextension sync` scaffolds your extension output. `unextension build` compiles it. Simple.
   </Card>
 </CardGrid>
-

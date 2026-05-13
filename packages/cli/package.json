@@ -15,16 +15,19 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && node scripts/copy-actions.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "cac": "7.0.0",
     "cosmiconfig": "9.0.1",
     "cosmiconfig-typescript-loader": "6.3.0",
     "fs-extra": "11.3.4",
-    "rollup": "^4.0.0"
+    "rollup": "4.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.4",

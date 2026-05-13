@@ -1,7 +1,14 @@
 import path from 'node:path'
 import fs from 'fs-extra'
 
-const LICENSE_FILES = ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md', 'LICENCE.txt']
+const LICENSE_FILES = [
+  'LICENSE',
+  'LICENSE.md',
+  'LICENSE.txt',
+  'LICENCE',
+  'LICENCE.md',
+  'LICENCE.txt',
+]
 
 export async function init(cwd: string) {
   const pkgPath = path.join(cwd, 'package.json')
@@ -21,9 +28,7 @@ export async function init(cwd: string) {
     if (pkg.description) description = pkg.description
     if (pkg.license) license = pkg.license
     if (pkg.repository) {
-      repository = typeof pkg.repository === 'string'
-        ? pkg.repository
-        : pkg.repository.url ?? ''
+      repository = typeof pkg.repository === 'string' ? pkg.repository : (pkg.repository.url ?? '')
     }
   }
 
@@ -88,7 +93,5 @@ export async function init(cwd: string) {
 }
 
 function toDisplayName(name: string): string {
-  return name
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+  return name.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }

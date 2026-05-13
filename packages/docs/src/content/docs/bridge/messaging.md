@@ -7,28 +7,46 @@ The bridge messaging API lets your web app send commands to the IDE host and rec
 
 ## `bridge.postMessage(type, payload?)`
 
-Sends a message to the IDE extension host.
+Sends a fire-and-forget message to the IDE extension host. No reply is expected.
 
 ```ts
 import { bridge } from '@unextension/bridge'
 
 bridge.postMessage('openFile', { path: 'src/index.ts' })
-bridge.postMessage('showNotification', { text: 'Hello from web app!' })
 bridge.postMessage('ping') // no payload needed
 ```
 
 ### Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `type` | `string` | ✅ | The message type / command name |
-| `payload` | `unknown` | — | Optional data to send along with the message |
+| Parameter | Type      | Required | Description                                  |
+| --------- | --------- | -------- | -------------------------------------------- |
+| `type`    | `string`  | ✅       | The message type / command name              |
+| `payload` | `unknown` | —        | Optional data to send along with the message |
 
-### How it routes
+---
 
-- **VS Code** — calls `acquireVsCodeApi().postMessage({ type, payload })`
-- **JetBrains** — calls `window.__unextension_jb_bridge(JSON.stringify({ type, payload }))`
-- **Neither** — logs a warning to the console (useful during development in a browser)
+## `bridge.request(type, payload?)`
+
+Sends a message to the IDE host and returns a `Promise` that resolves with the reply. Uses a `correlationId` to match the reply to the request.
+
+```ts
+import { bridge } from '@unextension/bridge'
+
+const files = await bridge.request<string[]>('list-project-files', { pattern: '**/*.ts' })
+```
+
+This is the foundation all [built-in actions](./actions) are built on. Use it to implement custom actions.
+
+### Parameters
+
+| Parameter | Type      | Required | Description                     |
+| --------- | --------- | -------- | ------------------------------- |
+| `type`    | `string`  | ✅       | The message type / command name |
+| `payload` | `unknown` | —        | Optional data to send           |
+
+### Return value
+
+`Promise<T>` — resolves with the `payload` field of the `type:reply` message.
 
 ---
 
@@ -49,13 +67,23 @@ unsubscribe()
 
 ### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Parameter | Type                         | Description                                         |
+| --------- | ---------------------------- | --------------------------------------------------- |
 | `handler` | `(message: unknown) => void` | Called whenever a message is received from the host |
 
 ### Return value
 
 Returns an **unsubscribe function** — call it to remove the handler.
+
+---
+
+## How messages route
+
+| IDE       | Underlying mechanism                                  |
+| --------- | ----------------------------------------------------- |
+| VS Code   | `acquireVsCodeApi().postMessage` / `window.onmessage` |
+| JetBrains | `window.__unextension_jb_bridge` / `window.onmessage` |
+| Neither   | logs a warning (useful during browser development)    |
 
 ---
 
@@ -80,4 +108,3 @@ function MyView() {
   )
 }
 ```
-

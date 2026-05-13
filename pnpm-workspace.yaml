@@ -1,2 +1,6 @@
 packages:
   - 'packages/*'
+allowBuilds:
+  '@playwright/browser-chromium': true
+  esbuild: true
+  sharp: true

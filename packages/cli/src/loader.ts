@@ -26,7 +26,7 @@ export async function loadConfig(cwd: string): Promise<UnextensionConfig> {
   const result = await explorer.search(cwd)
   if (!result || result.isEmpty) {
     throw new Error(
-      `No unextension config found. Create an unextension.config.ts in your project root.`
+      `No unextension config found. Create an unextension.config.ts in your project root.`,
     )
   }
 

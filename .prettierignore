@@ -1,0 +1,8 @@
+dist
+node_modules
+.astro
+pnpm-lock.yaml
+.vscode-test-web
+test-results/
+playwright-report/
+.playwright/

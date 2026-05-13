@@ -7,13 +7,24 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./script": {
+      "types": "./dist/script.d.ts",
+      "import": "./dist/script.js",
+      "require": "./dist/script.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "devDependencies": {
+    "@types/node": "24.12.2",
+    "@vitest/browser": "4.1.6",
+    "jsdom": "29.1.1",
     "typescript": "6.0.3"
   }
 }

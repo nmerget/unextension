@@ -5,7 +5,7 @@ import { loadConfig } from '../loader.js'
 
 export async function build(cwd: string, targets?: string[]) {
   const config = await loadConfig(cwd)
-  const resolvedTargets = targets?.length ? targets : config.targets ?? ['vscode', 'jetbrains']
+  const resolvedTargets = targets?.length ? targets : (config.targets ?? ['vscode', 'jetbrains'])
 
   console.log(`\n⚡ unextension build — ${config.displayName} v${config.version}\n`)
 
@@ -68,4 +68,3 @@ function buildVSCode(cwd: string) {
 
   console.log('  ✓ VS Code extension built')
 }
-

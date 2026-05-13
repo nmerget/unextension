@@ -1,6 +1,6 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import starlight from '@astrojs/starlight';
+import { defineConfig } from 'astro/config'
+import starlight from '@astrojs/starlight'
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,7 +14,7 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/nmerget/vortex',
+          href: 'https://github.com/nmerget/unextension',
         },
       ],
       sidebar: [
@@ -27,9 +27,7 @@ export default defineConfig({
         },
         {
           label: 'Configuration',
-          items: [
-            { label: 'Config File', slug: 'configuration/config-file' },
-          ],
+          items: [{ label: 'Config File', slug: 'configuration/config-file' }],
         },
         {
           label: 'Targets',
@@ -43,17 +41,16 @@ export default defineConfig({
           items: [
             { label: 'Overview', slug: 'bridge' },
             { label: 'Messaging', slug: 'bridge/messaging' },
+            { label: 'Actions', slug: 'bridge/actions' },
+            { label: 'Scripts', slug: 'bridge/scripts' },
             { label: 'Types', slug: 'bridge/types' },
           ],
         },
         {
           label: 'Reference',
-          items: [
-            { label: 'CLI Commands', slug: 'reference/cli' },
-          ],
+          items: [{ label: 'CLI Commands', slug: 'reference/cli' }],
         },
       ],
     }),
   ],
-});
-
+})
