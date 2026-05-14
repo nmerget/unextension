@@ -39,12 +39,12 @@
     "cac": "7.0.0",
     "cosmiconfig": "9.0.1",
     "cosmiconfig-typescript-loader": "6.3.0",
-    "fs-extra": "11.3.4",
-    "rollup": "4.0.0"
+    "fs-extra": "11.3.5",
+    "rollup": "4.60.3"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.4",
-    "@types/node": "24.12.2",
+    "@types/node": "25.7.0",
     "typescript": "6.0.3"
   }
 }

@@ -27,7 +27,7 @@ function runScript(payload, reply, channel) {
     [scriptFile],
     { timeout: 30000, env: { ...process.env, UNEXTENSION_PAYLOAD: input } },
     (err, stdout, stderr) => {
-      let result = null
+      let result
       try {
         result = JSON.parse(stdout.trim())
       } catch {
