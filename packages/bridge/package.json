@@ -2,6 +2,17 @@
   "name": "@unextension/bridge",
   "version": "0.0.1",
   "description": "Runtime bridge API for unextension plugins",
+  "author": "Nicolas Merget",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nmerget/unextension.git",
+    "directory": "packages/bridge"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
@@ -16,7 +27,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc",
