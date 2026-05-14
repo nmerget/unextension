@@ -1,6 +1,6 @@
 {
   "name": "@unextension/cli",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Build universal IDE extensions from web apps",
   "author": "Nicolas Merget",
   "license": "MIT",
