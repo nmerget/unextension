@@ -57,7 +57,7 @@ class ${className}ToolWindowFactory : ToolWindowFactory {
                 if (correlationId.isNotEmpty()) reply.put("correlationId", correlationId)
 ${actionDispatch}
 
-                val replyJson = reply.toString().replace("\\", "\\\\").replace("'", "\\'")
+                val replyJson = reply.toString().replace("\\\\", "\\\\\\\\").replace("'", "\\\\'")
                 val js = "window.dispatchEvent(new MessageEvent('message', { data: JSON.parse('$replyJson') }));"
                 browser.cefBrowser.executeJavaScript(js, browser.cefBrowser.url, 0)
             } catch (e: Exception) {

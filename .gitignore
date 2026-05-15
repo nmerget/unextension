@@ -25,4 +25,6 @@ output/
 # Local AI agent overrides (machine-specific, not shared)
 AGENTS.override.md
 
-.kiro
+.kiro/specs
+
+unextension-test.txt
