@@ -36,10 +36,16 @@ export interface KotlinActions {
   functions: string
   /** if/else if dispatch chain to embed in the message handler */
   dispatch: string
+  /** Whether any action needs the process registry (spawn-process support) */
+  needsProcessRegistry: boolean
 }
 
 export function generateKotlinActions(): KotlinActions {
   const actions = loadActions()
+
+  const needsProcessRegistry = actions.some(
+    (a) => a.body.includes('jbProcessRegistry') || a.body.includes('postStreamEvent'),
+  )
 
   const functions = actions
     .map((a) =>
@@ -60,5 +66,5 @@ export function generateKotlinActions(): KotlinActions {
       .join('\n                ') +
     `\n                else {\n                    reply.put("type", "$type:reply")\n                    val replyPayload = org.json.JSONObject()\n                    replyPayload.put("received", true)\n                    replyPayload.put("echo", parsed.opt("payload"))\n                    reply.put("payload", replyPayload)\n                }`
 
-  return { functions, dispatch }
+  return { functions, dispatch, needsProcessRegistry }
 }

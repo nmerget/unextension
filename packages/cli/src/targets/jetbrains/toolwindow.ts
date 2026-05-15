@@ -7,7 +7,45 @@ export function generateToolWindowFactory(
 ): string {
   const routeRelative = route === '/' || route === '' ? '' : route.replace(/^\//, '')
   const classNameLower = className.toLowerCase()
-  const { functions: actionFunctions, dispatch: actionDispatch } = generateKotlinActions()
+  const {
+    functions: actionFunctions,
+    dispatch: actionDispatch,
+    needsProcessRegistry,
+  } = generateKotlinActions()
+
+  const processRegistryMembers = needsProcessRegistry
+    ? `
+    private val jbProcessRegistry = mutableMapOf<String, Process>()
+
+    private fun postStreamEvent(
+        browser: JBCefBrowser,
+        processId: String,
+        eventType: String,
+        data: String?,
+        exitCode: Int? = null
+    ) {
+        val event = org.json.JSONObject()
+        event.put("processId", processId)
+        val eventPayload = org.json.JSONObject()
+        eventPayload.put("type", eventType)
+        if (data != null) eventPayload.put("data", data)
+        if (exitCode != null) eventPayload.put("exitCode", exitCode)
+        event.put("payload", eventPayload)
+
+        val json = event.toString().replace("\\\\", "\\\\\\\\").replace("'", "\\\\'")
+        val js = "window.dispatchEvent(new MessageEvent('message', { data: JSON.parse('$json') }));"
+        browser.cefBrowser.executeJavaScript(js, browser.cefBrowser.url, 0)
+    }
+`
+    : ''
+
+  const processRegistryCleanup = needsProcessRegistry
+    ? `
+            for ((_, proc) in jbProcessRegistry) {
+                proc.destroyForcibly()
+            }
+            jbProcessRegistry.clear()`
+    : ''
 
   return `package com.unextension
 
@@ -121,7 +159,7 @@ ${actionDispatch}
         }
         browser.jbCefClient.addLoadHandler(loadHandler, browser.cefBrowser)
 
-        com.intellij.openapi.util.Disposer.register(toolWindow.disposable) {
+        com.intellij.openapi.util.Disposer.register(toolWindow.disposable) {${processRegistryCleanup}
             browser.jbCefClient.removeLoadHandler(loadHandler, browser.cefBrowser)
             jsQuery.dispose()
             browser.dispose()
@@ -138,7 +176,7 @@ ${actionDispatch}
     }
 
 ${actionFunctions}
-
+${processRegistryMembers}
     private fun resolveWebviewHtml(): String? {
         val tmpDir = java.io.File(System.getProperty("java.io.tmpdir"), "unextension-webview-${classNameLower}")
         tmpDir.mkdirs()
