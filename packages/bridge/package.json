@@ -1,6 +1,6 @@
 {
   "name": "@unextension/bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Runtime bridge API for unextension plugins",
   "author": "Nicolas Merget",
   "license": "MIT",
