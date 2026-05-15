@@ -15,6 +15,7 @@ Add all bridge actions spanning the bridge layer, VS Code target, and JetBrains 
 - `showQuickPick` — present a selection list via native IDE quick-pick UI
 
 Also includes:
+
 - JetBrains threading fixes (runReadAction, invokeAndWait)
 - JetBrains IntelliJ 2025.1 compatibility (DocumentMarkupModel)
 - Toolwindow template backslash escaping fix
