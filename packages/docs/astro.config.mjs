@@ -47,8 +47,10 @@ export default defineConfig({
             { label: 'Clipboard', slug: 'bridge/clipboard' },
             { label: 'getActiveEditor', slug: 'bridge/get-active-editor' },
             { label: 'getDiagnostics', slug: 'bridge/get-diagnostics' },
+            { label: 'getTheme', slug: 'bridge/get-theme' },
             { label: 'openFile', slug: 'bridge/open-file' },
             { label: 'showQuickPick', slug: 'bridge/show-quick-pick' },
+            { label: 'spawnProcess', slug: 'bridge/spawn-process' },
           ],
         },
         {

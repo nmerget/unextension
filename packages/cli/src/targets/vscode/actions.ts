@@ -28,7 +28,11 @@ export function generateActions(): string {
   const functions = actions.map((a) => a.body).join('\n\n')
 
   const cases = actions
-    .map((a) => `    case '${a.type}': await ${a.fnName}(payload, reply, channel); break;`)
+    .map((a) => {
+      const needsWebview = a.body.includes(', webview)')
+      const args = needsWebview ? `payload, reply, channel, webview` : `payload, reply, channel`
+      return `    case '${a.type}': await ${a.fnName}(${args}); break;`
+    })
     .join('\n')
 
   return `${functions}
