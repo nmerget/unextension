@@ -14,6 +14,7 @@ import {
   getTheme,
   openFile,
   showQuickPick,
+  spawnProcess,
 } from '@unextension/bridge'
 
 interface LogEntry {
@@ -203,6 +204,29 @@ export function KitchenSink() {
     }
   }
 
+  const handleSpawnProcess = async () => {
+    add('⏳ spawnProcess → echo "hello"…')
+    try {
+      const handle = await spawnProcess('echo', ['hello'])
+      add(`🚀 spawnProcess → pid: ${handle.pid}, processId: ${handle.processId}`)
+
+      const reader = handle.stdout.getReader()
+      const read = async () => {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          add(`📡 stdout: ${value.trim()}`)
+        }
+      }
+      read()
+
+      const exitCode = await handle.exitCode
+      add(`🏁 spawnProcess → exit code: ${exitCode}`)
+    } catch (e) {
+      add(`❌ spawnProcess error: ${e}`)
+    }
+  }
+
   return (
     <div className="kitchen-sink">
       <h2>🧪 Kitchen Sink</h2>
@@ -254,6 +278,9 @@ export function KitchenSink() {
         </button>
         <button type="button" onClick={handleShowQuickPick}>
           showQuickPick
+        </button>
+        <button type="button" onClick={handleSpawnProcess}>
+          spawnProcess
         </button>
       </div>
       <div className="log">

@@ -9,6 +9,7 @@ interface Action {
   fnName: string
   body: string
   needsProject: boolean
+  needsBrowser: boolean
 }
 
 function pascalToKebab(s: string): string {
@@ -25,7 +26,8 @@ function loadActions(): Action[] {
       const type = pascalToKebab(name)
       const body = readFileSync(join(actionsDir, f), 'utf8').trim()
       const needsProject = body.includes(', project: Project')
-      return { type, fnName, body, needsProject }
+      const needsBrowser = body.includes(', browser: JBCefBrowser')
+      return { type, fnName, body, needsProject, needsBrowser }
     })
 }
 
@@ -51,7 +53,7 @@ export function generateKotlinActions(): KotlinActions {
   const dispatch =
     actions
       .map((a, i) => {
-        const call = `${a.fnName}(payload, reply${a.needsProject ? ', project' : ''})`
+        const call = `${a.fnName}(payload, reply${a.needsProject ? ', project' : ''}${a.needsBrowser ? ', browser' : ''})`
         const cond = `type == "${a.type}"`
         return i === 0 ? `if (${cond}) { ${call} }` : `else if (${cond}) { ${call} }`
       })
