@@ -44,6 +44,11 @@ export default defineConfig({
             { label: 'Actions', slug: 'bridge/actions' },
             { label: 'Scripts', slug: 'bridge/scripts' },
             { label: 'Types', slug: 'bridge/types' },
+            { label: 'Clipboard', slug: 'bridge/clipboard' },
+            { label: 'getActiveEditor', slug: 'bridge/get-active-editor' },
+            { label: 'getDiagnostics', slug: 'bridge/get-diagnostics' },
+            { label: 'openFile', slug: 'bridge/open-file' },
+            { label: 'showQuickPick', slug: 'bridge/show-quick-pick' },
           ],
         },
         {

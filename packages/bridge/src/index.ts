@@ -88,9 +88,28 @@ export { notify } from './actions/notify.js'
 export { readProjectFile } from './actions/readProjectFile.js'
 export { writeProjectFile } from './actions/writeProjectFile.js'
 export { runScript } from './actions/runScript.js'
+export { getClipboard } from './actions/getClipboard.js'
+export { setClipboard } from './actions/setClipboard.js'
+export { getActiveEditor } from './actions/getActiveEditor.js'
+export { getDiagnostics } from './actions/getDiagnostics.js'
+export { getTheme } from './actions/getTheme.js'
+export { openFile } from './actions/openFile.js'
+export { showQuickPick } from './actions/showQuickPick.js'
 export type { ListProjectFilesOptions } from './actions/listProjectFiles.js'
 export type { RunCommandResult, RunCommandOptions, Shell } from './actions/runCommand.js'
 export type { NotifyLevel } from './actions/notify.js'
 export type { ReadProjectFileResult } from './actions/readProjectFile.js'
 export type { WriteProjectFileResult } from './actions/writeProjectFile.js'
 export type { RunScriptResult } from './actions/runScript.js'
+export type { GetClipboardResult } from './actions/getClipboard.js'
+export type { SetClipboardResult } from './actions/setClipboard.js'
+export type { GetActiveEditorOptions, GetActiveEditorResult } from './actions/getActiveEditor.js'
+export type {
+  Diagnostic,
+  GetDiagnosticsOptions,
+  GetDiagnosticsResult,
+  Severity,
+} from './actions/getDiagnostics.js'
+export type { ThemeResult, ThemeColors } from './actions/getTheme.js'
+export type { OpenFileOptions, OpenFileResult } from './actions/openFile.js'
+export type { QuickPickItem, QuickPickOptions, QuickPickResult } from './actions/showQuickPick.js'

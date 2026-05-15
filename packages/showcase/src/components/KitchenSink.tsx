@@ -7,6 +7,13 @@ import {
   readProjectFile,
   writeProjectFile,
   runScript,
+  getClipboard,
+  setClipboard,
+  getActiveEditor,
+  getDiagnostics,
+  getTheme,
+  openFile,
+  showQuickPick,
 } from '@unextension/bridge'
 
 interface LogEntry {
@@ -84,6 +91,118 @@ export function KitchenSink() {
     }
   }
 
+  const handleGetClipboard = async () => {
+    add('⏳ getClipboard…')
+    try {
+      const result = await getClipboard()
+      add(`📋 getClipboard → "${result.text.slice(0, 80)}${result.text.length > 80 ? '…' : ''}"`)
+    } catch (e) {
+      add(`❌ getClipboard error: ${e}`)
+    }
+  }
+
+  const handleSetClipboard = async () => {
+    const sample = `Copied by unextension at ${new Date().toISOString()}`
+    add(`⏳ setClipboard → "${sample}"…`)
+    try {
+      const result = await setClipboard(sample)
+      add(`📋 setClipboard → success: ${result.success}`)
+    } catch (e) {
+      add(`❌ setClipboard error: ${e}`)
+    }
+  }
+
+  const handleGetActiveEditor = async () => {
+    add('⏳ getActiveEditor…')
+    try {
+      const result = await getActiveEditor()
+      if (result) {
+        add(
+          `📝 getActiveEditor → ${result.relativePath} (${result.language}) L${result.startLine}:${result.startColumn}`,
+        )
+      } else {
+        add('📝 getActiveEditor → null (no editor open)')
+      }
+    } catch (e) {
+      add(`❌ getActiveEditor error: ${e}`)
+    }
+  }
+
+  const handleGetActiveEditorWithContent = async () => {
+    add('⏳ getActiveEditor (includeContent)…')
+    try {
+      const result = await getActiveEditor({ includeContent: true })
+      if (result) {
+        add(`📝 getActiveEditor → ${result.relativePath} (${result.content?.length ?? 0} chars)`)
+      } else {
+        add('📝 getActiveEditor → null (no editor open)')
+      }
+    } catch (e) {
+      add(`❌ getActiveEditor error: ${e}`)
+    }
+  }
+
+  const handleGetDiagnostics = async () => {
+    add('⏳ getDiagnostics…')
+    try {
+      const result = await getDiagnostics()
+      add(`🔍 getDiagnostics → ${result.diagnostics.length} diagnostic(s)`)
+    } catch (e) {
+      add(`❌ getDiagnostics error: ${e}`)
+    }
+  }
+
+  const handleGetDiagnosticsOpenFiles = async () => {
+    add('⏳ getDiagnostics (open files)…')
+    try {
+      const result = await getDiagnostics({ openFilesOnly: true })
+      add(`🔍 getDiagnostics (open) → ${result.diagnostics.length} diagnostic(s)`)
+    } catch (e) {
+      add(`❌ getDiagnostics error: ${e}`)
+    }
+  }
+
+  const handleGetTheme = async () => {
+    add('⏳ getTheme…')
+    try {
+      const result = await getTheme()
+      const colorCount = Object.keys(result.colors).length
+      add(`🎨 getTheme → ${result.colorScheme}, ${colorCount} color(s)`)
+    } catch (e) {
+      add(`❌ getTheme error: ${e}`)
+    }
+  }
+
+  const handleOpenFile = async () => {
+    add('⏳ openFile…')
+    try {
+      const result = await openFile('src/index.ts', { line: 1, column: 1 })
+      add(`📂 openFile → success: ${result.success}`)
+    } catch (e) {
+      add(`❌ openFile error: ${e}`)
+    }
+  }
+
+  const handleShowQuickPick = async () => {
+    add('⏳ showQuickPick…')
+    try {
+      const result = await showQuickPick(
+        [
+          { label: 'TypeScript', description: 'Typed JavaScript', value: 'ts' },
+          { label: 'JavaScript', description: 'Dynamic language', value: 'js' },
+          { label: 'Rust', description: 'Systems language', value: 'rs' },
+        ],
+        { title: 'Pick a language', placeholder: 'Search languages...' },
+      )
+      console.log('showQuickPick result:', result)
+      add(
+        `🎯 showQuickPick → ${result.selected ? JSON.stringify(result.selected) : 'null (cancelled)'}`,
+      )
+    } catch (e) {
+      add(`❌ showQuickPick error: ${e}`)
+    }
+  }
+
   return (
     <div className="kitchen-sink">
       <h2>🧪 Kitchen Sink</h2>
@@ -108,6 +227,33 @@ export function KitchenSink() {
         </button>
         <button type="button" onClick={handleRunScript}>
           runScript
+        </button>
+        <button type="button" onClick={handleGetClipboard}>
+          getClipboard
+        </button>
+        <button type="button" onClick={handleSetClipboard}>
+          setClipboard
+        </button>
+        <button type="button" onClick={handleGetActiveEditor}>
+          getActiveEditor
+        </button>
+        <button type="button" onClick={handleGetActiveEditorWithContent}>
+          getActiveEditor (content)
+        </button>
+        <button type="button" onClick={handleGetDiagnostics}>
+          getDiagnostics
+        </button>
+        <button type="button" onClick={handleGetDiagnosticsOpenFiles}>
+          getDiagnostics (open files)
+        </button>
+        <button type="button" onClick={handleGetTheme}>
+          getTheme
+        </button>
+        <button type="button" onClick={handleOpenFile}>
+          openFile
+        </button>
+        <button type="button" onClick={handleShowQuickPick}>
+          showQuickPick
         </button>
       </div>
       <div className="log">
