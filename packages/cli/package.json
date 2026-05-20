@@ -40,11 +40,11 @@
     "cosmiconfig": "9.0.1",
     "cosmiconfig-typescript-loader": "6.3.0",
     "fs-extra": "11.3.5",
-    "rollup": "4.60.3"
+    "rollup": "4.60.4"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.4",
-    "@types/node": "25.7.0",
+    "@types/node": "25.9.1",
     "fast-check": "4.8.0",
     "typescript": "6.0.3"
   }
