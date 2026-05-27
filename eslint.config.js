@@ -71,6 +71,7 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         ...nodeGlobals,
+        __UNEXTENSION_COMMANDS_ALLOW__: 'readonly',
         execFile: 'readonly',
         extensionPath: 'readonly',
         fs: 'readonly',

@@ -12,10 +12,14 @@ import {
   getActiveEditor,
   getDiagnostics,
   getTheme,
+  getTarget,
   openFile,
   showQuickPick,
   spawnProcess,
+  executeCommand,
+  openInSimpleBrowser,
 } from '@unextension/bridge'
+import type { UnextensionCommand } from '@unextension/bridge'
 
 interface LogEntry {
   time: string
@@ -174,6 +178,16 @@ export function KitchenSink() {
     }
   }
 
+  const handleGetTarget = async () => {
+    add('⏳ getTarget…')
+    try {
+      const result = await getTarget()
+      add(`🎯 getTarget → ${result.target} / ${result.name} v${result.version}`)
+    } catch (e) {
+      add(`❌ getTarget error: ${e}`)
+    }
+  }
+
   const handleOpenFile = async () => {
     add('⏳ openFile…')
     try {
@@ -201,6 +215,31 @@ export function KitchenSink() {
       )
     } catch (e) {
       add(`❌ showQuickPick error: ${e}`)
+    }
+  }
+
+  const handleExecuteCommand = async () => {
+    add('⏳ executeCommand…')
+    try {
+      const cmd: UnextensionCommand = 'unextension.openSettings'
+      const result = await executeCommand(cmd)
+      if (result.error) {
+        add(`❌ executeCommand error: ${result.error}`)
+      } else {
+        add(`✅ executeCommand → result: ${JSON.stringify(result.result)}`)
+      }
+    } catch (e) {
+      add(`❌ executeCommand error: ${e}`)
+    }
+  }
+
+  const handleOpenInSimpleBrowser = async () => {
+    add('⏳ openInSimpleBrowser…')
+    try {
+      const result = await openInSimpleBrowser('https://example.com')
+      add(`✅ openInSimpleBrowser → success: ${result.success}`)
+    } catch (e) {
+      add(`❌ openInSimpleBrowser error: ${e}`)
     }
   }
 
@@ -273,11 +312,20 @@ export function KitchenSink() {
         <button type="button" onClick={handleGetTheme}>
           getTheme
         </button>
+        <button type="button" onClick={handleGetTarget}>
+          getTarget
+        </button>
         <button type="button" onClick={handleOpenFile}>
           openFile
         </button>
         <button type="button" onClick={handleShowQuickPick}>
           showQuickPick
+        </button>
+        <button type="button" onClick={handleExecuteCommand}>
+          executeCommand
+        </button>
+        <button type="button" onClick={handleOpenInSimpleBrowser}>
+          openInSimpleBrowser
         </button>
         <button type="button" onClick={handleSpawnProcess}>
           spawnProcess

@@ -105,6 +105,7 @@ ${toolWindowEntries}
         toPascalCase(view.id),
         view.route.replace(/\/\*$/, ''),
         devMode,
+        config.commands?.allow,
       )
       await fs.writeFile(path.join(kotlinDir, `${toPascalCase(view.id)}ToolWindowFactory.kt`), kt)
     }
@@ -112,7 +113,7 @@ ${toolWindowEntries}
     const className = toPascalCase(config.name)
     await fs.writeFile(
       path.join(kotlinDir, `${className}ToolWindowFactory.kt`),
-      generateToolWindowFactory(className, '/', devMode),
+      generateToolWindowFactory(className, '/', devMode, config.commands?.allow),
     )
   }
 

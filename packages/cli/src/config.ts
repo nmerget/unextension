@@ -50,6 +50,23 @@ export interface ViewConfig {
   icon?: string
 }
 
+/**
+ * Restricts which command IDs can be executed via the `executeCommand` bridge action.
+ */
+export interface CommandsConfig {
+  /**
+   * Allowlist of command IDs that can be executed.
+   * Supports exact matches and glob patterns where `*` matches one or more
+   * characters within a single dot-separated segment
+   * (e.g., `workbench.action.*` matches `workbench.action.openSettings`
+   * but not `workbench.action.editor.openSettings`).
+   *
+   * When omitted, all commands are allowed.
+   * When set to an empty array, no commands are allowed.
+   */
+  allow?: string[]
+}
+
 export interface UnextensionConfig {
   /** Extension identifier (kebab-case) */
   name: string
@@ -100,6 +117,8 @@ export interface UnextensionConfig {
   vscode?: VSCodeConfig
   /** JetBrains-specific options */
   jetbrains?: JetBrainsConfig
+  /** Command execution restrictions */
+  commands?: CommandsConfig
 }
 
 export function defineConfig(config: UnextensionConfig): UnextensionConfig {
