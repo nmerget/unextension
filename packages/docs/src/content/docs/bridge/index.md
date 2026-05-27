@@ -43,7 +43,36 @@ unsubscribe()
 
 ## Sections
 
+### Core
+
 - [Messaging](./messaging) — `postMessage`, `onMessage` and `request`
-- [Actions](./actions) — built-in actions: `listProjectFiles`, `runCommand`, `notify`, `readProjectFile`, `writeProjectFile`, `runScript`
-- [Scripts](./scripts) — writing and bundling Node.js scripts for `runScript`
 - [Types](./types) — TypeScript interfaces and types
+
+### File System
+
+- [Actions](./actions) — `listProjectFiles`, `readProjectFile`, `writeProjectFile`
+- [openFile](./open-file) — open a file in the IDE editor
+
+### Editor & IDE
+
+- [getActiveEditor](./get-active-editor) — get the currently active editor and selection
+- [getDiagnostics](./get-diagnostics) — get lint/compile errors for a file
+- [getTheme](./get-theme) — get the current IDE theme (light/dark)
+- [Execute Command](./execute-command) — execute any IDE command (with cross-platform `unextension.*` commands)
+- [Open in Simple Browser](./open-in-simple-browser) — open a URL in the IDE's built-in browser
+
+### UI & Interaction
+
+- [notify](./actions) — show native IDE notifications
+- [showQuickPick](./show-quick-pick) — show a searchable picker dialog
+- [Clipboard](./clipboard) — read/write the system clipboard
+
+### Shell & Processes
+
+- [runCommand](./actions) — run a shell command and get the output
+- [spawnProcess](./spawn-process) — spawn a long-running process with streaming output
+- [Scripts](./scripts) — writing and bundling Node.js scripts for `runScript`
+
+### Help
+
+- [Troubleshooting](./troubleshooting) — common issues and solutions

@@ -4,6 +4,7 @@ export function generateToolWindowFactory(
   className: string,
   route: string,
   devMode: boolean,
+  commandsAllow?: string[],
 ): string {
   const routeRelative = route === '/' || route === '' ? '' : route.replace(/^\//, '')
   const classNameLower = className.toLowerCase()
@@ -12,6 +13,11 @@ export function generateToolWindowFactory(
     dispatch: actionDispatch,
     needsProcessRegistry,
   } = generateKotlinActions()
+
+  // Generate the commandsAllow class-level property
+  const commandsAllowProperty = commandsAllow
+    ? `    private val commandsAllow: List<String>? = listOf(${commandsAllow.map((cmd) => `"${cmd.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(', ')})`
+    : `    private val commandsAllow: List<String>? = null`
 
   const processRegistryMembers = needsProcessRegistry
     ? `
@@ -65,6 +71,8 @@ import javax.swing.JPanel
 import java.awt.BorderLayout
 
 class ${className}ToolWindowFactory : ToolWindowFactory {
+${commandsAllowProperty}
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val contentManager = toolWindow.contentManager
 

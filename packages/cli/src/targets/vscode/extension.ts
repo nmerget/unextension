@@ -6,6 +6,11 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
   const sidebarViews = views.filter((v) => (v.location ?? 'sidebar') === 'sidebar')
   const panelViews = views.filter((v) => v.location === 'panel' || v.location === 'editor')
 
+  // Generate allowlist constant injection when commands.allow is configured
+  const commandsAllowLine = config.commands?.allow
+    ? `const __UNEXTENSION_COMMANDS_ALLOW__ = [${config.commands.allow.map((cmd) => JSON.stringify(cmd)).join(', ')}];\n`
+    : ''
+
   const viewProviders = sidebarViews.map((v) => generateViewProvider(config, v)).join('\n\n')
 
   const sidebarRegistrations = sidebarViews
@@ -47,7 +52,7 @@ const os = require('os');
 let output;
 let outputs = {};
 let extensionPath = '';
-
+${commandsAllowLine ? '\n' + commandsAllowLine : ''}
 ${viewProviders}
 
 ${generateActions()}

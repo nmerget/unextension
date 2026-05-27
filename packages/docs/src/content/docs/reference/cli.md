@@ -59,6 +59,10 @@ npx unextension dev [targets...] [--cwd <dir>]
 VS Code's Extension Development Host reloads the extension when you reload the window — no need to reinstall or repackage during development.
 :::
 
+---
+
+## `unextension build`
+
 Runs the native build for one or both targets.
 
 ```bash
