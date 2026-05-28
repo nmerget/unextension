@@ -5,6 +5,7 @@ export function generateToolWindowFactory(
   route: string,
   devMode: boolean,
   commandsAllow?: string[],
+  hasSettings?: boolean,
 ): string {
   const routeRelative = route === '/' || route === '' ? '' : route.replace(/^\//, '')
   const classNameLower = className.toLowerCase()
@@ -90,7 +91,7 @@ ${commandsAllowProperty}
             return
         }
         val browser = JBCefBrowser(htmlContent)
-        val jsQuery = JBCefJSQuery.create(browser)
+        ${hasSettings ? 'WebviewBrowserRegistry.register(browser)\n        ' : ''}val jsQuery = JBCefJSQuery.create(browser)
 
         jsQuery.addHandler { msg ->
             println("[unextension] message from webview (${classNameLower}): $msg")
@@ -168,7 +169,7 @@ ${actionDispatch}
         browser.jbCefClient.addLoadHandler(loadHandler, browser.cefBrowser)
 
         com.intellij.openapi.util.Disposer.register(toolWindow.disposable) {${processRegistryCleanup}
-            browser.jbCefClient.removeLoadHandler(loadHandler, browser.cefBrowser)
+            ${hasSettings ? 'WebviewBrowserRegistry.unregister(browser)\n            ' : ''}browser.jbCefClient.removeLoadHandler(loadHandler, browser.cefBrowser)
             jsQuery.dispose()
             browser.dispose()
         }

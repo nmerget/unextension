@@ -4,6 +4,11 @@ import fs from 'fs-extra'
 import type { UnextensionConfig } from '../../config.js'
 import { toPascalCase, escapeXml, defaultPluginIconSvg } from '../shared.js'
 import { generateToolWindowFactory } from './toolwindow.js'
+import { generateAppSettingsState, generateProjectSettingsState } from './settings-state.js'
+import {
+  generateSettingsConfigurable,
+  generateWebviewBrowserRegistry,
+} from './settings-configurable.js'
 
 const DEFAULT_GRADLE_VERSION = '8.7'
 const DEFAULT_KOTLIN_VERSION = '2.1.0'
@@ -65,6 +70,35 @@ export async function buildJetBrains(config: UnextensionConfig, cwd: string) {
                 anchor="right"
                 secondary="false" />`
 
+  // Generate settings registration entries for plugin.xml
+  let settingsEntries = ''
+  if (config.settings && config.settings.length > 0) {
+    const globalSettings = config.settings.filter((s) => (s.scope ?? 'global') === 'global')
+    const workspaceSettings = config.settings.filter((s) => s.scope === 'workspace')
+    const entries: string[] = []
+
+    if (globalSettings.length > 0) {
+      entries.push(
+        `    <applicationService serviceImplementation="com.unextension.AppSettingsState" />`,
+      )
+    }
+    if (workspaceSettings.length > 0) {
+      entries.push(
+        `    <projectService serviceImplementation="com.unextension.ProjectSettingsState" />`,
+      )
+      entries.push(`    <projectConfigurable instance="com.unextension.SettingsConfigurable"
+                    id="com.unextension.settings"
+                    displayName="${escapeXml(config.displayName)}"
+                    parentId="tools" />`)
+    } else {
+      entries.push(`    <applicationConfigurable instance="com.unextension.SettingsConfigurable"
+                    id="com.unextension.settings"
+                    displayName="${escapeXml(config.displayName)}"
+                    parentId="tools" />`)
+    }
+    settingsEntries = '\n' + entries.join('\n')
+  }
+
   const pluginXml = `<idea-plugin>
   <id>com.unextension.${escapeXml(config.name)}</id>
   <name>${escapeXml(config.displayName)}</name>
@@ -76,7 +110,7 @@ export async function buildJetBrains(config: UnextensionConfig, cwd: string) {
 
   <extensions defaultExtensionNs="com.intellij">
     <notificationGroup id="unextension" displayType="BALLOON" />
-${toolWindowEntries}
+${toolWindowEntries}${settingsEntries}
   </extensions>
 </idea-plugin>
 `
@@ -99,6 +133,7 @@ ${toolWindowEntries}
   }
 
   const devMode = !!config.jetbrains?._devMode
+  const hasSettings = !!(config.settings && config.settings.length > 0)
   if (views.length > 0) {
     for (const view of views) {
       const kt = generateToolWindowFactory(
@@ -106,6 +141,7 @@ ${toolWindowEntries}
         view.route.replace(/\/\*$/, ''),
         devMode,
         config.commands?.allow,
+        hasSettings,
       )
       await fs.writeFile(path.join(kotlinDir, `${toPascalCase(view.id)}ToolWindowFactory.kt`), kt)
     }
@@ -113,7 +149,37 @@ ${toolWindowEntries}
     const className = toPascalCase(config.name)
     await fs.writeFile(
       path.join(kotlinDir, `${className}ToolWindowFactory.kt`),
-      generateToolWindowFactory(className, '/', devMode, config.commands?.allow),
+      generateToolWindowFactory(className, '/', devMode, config.commands?.allow, hasSettings),
+    )
+  }
+
+  // Generate settings state files if settings are defined
+  if (config.settings && config.settings.length > 0) {
+    const globalSettings = config.settings.filter((s) => (s.scope ?? 'global') === 'global')
+    const workspaceSettings = config.settings.filter((s) => s.scope === 'workspace')
+
+    if (globalSettings.length > 0) {
+      await fs.writeFile(
+        path.join(kotlinDir, 'AppSettingsState.kt'),
+        generateAppSettingsState(config.settings),
+      )
+    }
+
+    if (workspaceSettings.length > 0) {
+      await fs.writeFile(
+        path.join(kotlinDir, 'ProjectSettingsState.kt'),
+        generateProjectSettingsState(config.settings),
+      )
+    }
+
+    await fs.writeFile(
+      path.join(kotlinDir, 'SettingsConfigurable.kt'),
+      generateSettingsConfigurable(config),
+    )
+
+    await fs.writeFile(
+      path.join(kotlinDir, 'WebviewBrowserRegistry.kt'),
+      generateWebviewBrowserRegistry(),
     )
   }
 

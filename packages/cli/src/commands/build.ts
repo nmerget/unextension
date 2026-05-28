@@ -2,12 +2,25 @@ import path from 'node:path'
 import os from 'node:os'
 import { spawnSync } from 'node:child_process'
 import { loadConfig } from '../loader.js'
+import { validateSettings } from '../validation.js'
 
 export async function build(cwd: string, targets?: string[]) {
   const config = await loadConfig(cwd)
   const resolvedTargets = targets?.length ? targets : (config.targets ?? ['vscode', 'jetbrains'])
 
   console.log(`\n⚡ unextension build — ${config.displayName} v${config.version}\n`)
+
+  if (config.settings && config.settings.length > 0) {
+    const errors = validateSettings(config.settings)
+    if (errors.length > 0) {
+      console.log('  ❌ Settings validation failed:\n')
+      for (const error of errors) {
+        console.log(`     • ${error.path}: ${error.message}`)
+      }
+      console.log('')
+      process.exit(1)
+    }
+  }
 
   if (resolvedTargets.includes('jetbrains')) {
     buildJetBrains(cwd)

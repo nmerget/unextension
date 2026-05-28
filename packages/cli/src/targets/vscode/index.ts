@@ -8,6 +8,37 @@ const DEFAULT_ENGINE_VERSION = '>=1.85.0'
 const DEFAULT_TYPES_VSCODE_VERSION = '1.85.0'
 const DEFAULT_VSCE_VERSION = '3.0.0'
 
+/**
+ * Generates the VS Code `contributes.configuration` object from the extension's settings definitions.
+ * Maps setting types to VS Code configuration property types and scopes.
+ */
+export function generateVSCodeConfiguration(config: UnextensionConfig): object | undefined {
+  if (!config.settings || config.settings.length === 0) return undefined
+
+  const properties: Record<string, object> = {}
+
+  for (const setting of config.settings) {
+    const fullKey = `${config.name}.${setting.key}`
+    const prop: Record<string, unknown> = {
+      type: setting.type === 'enum' ? 'string' : setting.type,
+      default: setting.default,
+      description: setting.description,
+      scope: (setting.scope ?? 'global') === 'global' ? 'application' : 'resource',
+    }
+
+    if (setting.type === 'enum') {
+      prop.enum = setting.options
+    }
+
+    properties[fullKey] = prop
+  }
+
+  return {
+    title: config.displayName,
+    properties,
+  }
+}
+
 export async function buildVSCode(config: UnextensionConfig, cwd: string) {
   const distDir = path.resolve(cwd, config.distDir || './dist')
   const outDir = path.resolve(cwd, 'output/vscode')
@@ -82,6 +113,10 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
   if (Object.keys(viewsContrib).length > 0) {
     contributes.viewsContainers = viewsContainers
     contributes.views = viewsContrib
+  }
+
+  if (config.settings && config.settings.length > 0) {
+    contributes.configuration = generateVSCodeConfiguration(config)
   }
 
   const packageJson: Record<string, unknown> = {

@@ -29,4 +29,43 @@ export default defineConfig({
       location: 'panel',
     },
   ],
+  settings: [
+    {
+      key: 'editor.fontFamily',
+      type: 'string',
+      default: 'Consolas',
+      description: 'Font family used in the editor',
+      title: 'Font Family',
+    },
+    {
+      key: 'editor.fontSize',
+      type: 'number',
+      default: 14,
+      description: 'Font size in pixels for the editor',
+      title: 'Font Size',
+    },
+    {
+      key: 'editor.wordWrap',
+      type: 'boolean',
+      default: true,
+      description: 'Controls whether lines should wrap at the viewport width',
+      title: 'Word Wrap',
+    },
+    {
+      key: 'editor.theme',
+      type: 'enum',
+      default: 'dark',
+      options: ['light', 'dark', 'auto'],
+      description: 'Color theme for the editor',
+      title: 'Theme',
+    },
+    {
+      key: 'workspace.autoSave',
+      type: 'boolean',
+      default: false,
+      description: 'Automatically save files in this workspace',
+      title: 'Auto Save',
+      scope: 'workspace',
+    },
+  ],
 })

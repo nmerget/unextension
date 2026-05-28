@@ -1,3 +1,45 @@
+export type SettingType = 'string' | 'number' | 'boolean' | 'enum'
+export type SettingScope = 'global' | 'workspace'
+
+export interface SettingDefinitionBase {
+  /** Setting key in dot-notation (e.g. "editor.fontSize") */
+  key: string
+  /** Human-readable description shown in IDE settings UI */
+  description: string
+  /** Optional human-readable label for the setting */
+  title?: string
+  /** Scope of the setting (default: 'global') */
+  scope?: SettingScope
+}
+
+export interface StringSettingDefinition extends SettingDefinitionBase {
+  type: 'string'
+  default: string
+}
+
+export interface NumberSettingDefinition extends SettingDefinitionBase {
+  type: 'number'
+  default: number
+}
+
+export interface BooleanSettingDefinition extends SettingDefinitionBase {
+  type: 'boolean'
+  default: boolean
+}
+
+export interface EnumSettingDefinition extends SettingDefinitionBase {
+  type: 'enum'
+  default: string
+  /** Available choices for the enum dropdown */
+  options: string[]
+}
+
+export type SettingDefinition =
+  | StringSettingDefinition
+  | NumberSettingDefinition
+  | BooleanSettingDefinition
+  | EnumSettingDefinition
+
 export interface JetBrainsConfig {
   /** Open Chrome DevTools automatically (set internally by `unextension dev`) */
   _devMode?: boolean
@@ -119,6 +161,8 @@ export interface UnextensionConfig {
   jetbrains?: JetBrainsConfig
   /** Command execution restrictions */
   commands?: CommandsConfig
+  /** Configurable settings exposed in the IDE's settings/preferences UI */
+  settings?: SettingDefinition[]
 }
 
 export function defineConfig(config: UnextensionConfig): UnextensionConfig {

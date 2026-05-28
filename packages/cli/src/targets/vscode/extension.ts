@@ -11,6 +11,12 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
     ? `const __UNEXTENSION_COMMANDS_ALLOW__ = [${config.commands.allow.map((cmd) => JSON.stringify(cmd)).join(', ')}];\n`
     : ''
 
+  // Generate settings definitions constant injection
+  const settingsDefinitionsLine =
+    config.settings && config.settings.length > 0
+      ? `const settingsDefinitions = ${JSON.stringify(config.settings.map((s) => ({ key: s.key, default: s.default })))};\nconst extensionName = ${JSON.stringify(config.name)};\n`
+      : ''
+
   const viewProviders = sidebarViews.map((v) => generateViewProvider(config, v)).join('\n\n')
 
   const sidebarRegistrations = sidebarViews
@@ -19,6 +25,26 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
         `  context.subscriptions.push(\n    vscode.window.registerWebviewViewProvider('${config.name}.view.${v.id}', new ${toPascalCase(v.id)}ViewProvider(context))\n  );`,
     )
     .join('\n')
+
+  // Generate settings change listener registration
+  const settingsListenerRegistration =
+    config.settings && config.settings.length > 0
+      ? `
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(extensionName)) {
+        const config = vscode.workspace.getConfiguration(extensionName, null);
+        const values = {};
+        for (const def of settingsDefinitions) {
+          values[def.key] = config.get(def.key, def.default);
+        }
+        for (const panel of activePanels) {
+          panel.postMessage({ type: 'settings-changed', payload: values });
+        }
+      }
+    })
+  );`
+      : ''
 
   const panelRegistrations = panelViews
     .map((v) => {
@@ -37,6 +63,8 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
       vscode.ViewColumn.Beside,
       { enableScripts: true, localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'webview'))] }
     );
+    activePanels.add(panel.webview);
+    panel.onDidDispose(() => activePanels.delete(panel.webview));
     panel.webview.html = loadWebview(context.extensionPath, '${route}');
     panel.webview.onDidReceiveMessage((msg) => handleMessage(msg, panel.webview, channel));
   }));`
@@ -52,7 +80,8 @@ const os = require('os');
 let output;
 let outputs = {};
 let extensionPath = '';
-${commandsAllowLine ? '\n' + commandsAllowLine : ''}
+const activePanels = new Set();
+${commandsAllowLine ? '\n' + commandsAllowLine : ''}${settingsDefinitionsLine ? '\n' + settingsDefinitionsLine : ''}
 ${viewProviders}
 
 ${generateActions()}
@@ -69,11 +98,13 @@ function activate(context) {
       vscode.ViewColumn.One,
       { enableScripts: true, localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'webview'))] }
     );
+    activePanels.add(panel.webview);
+    panel.onDidDispose(() => activePanels.delete(panel.webview));
     panel.webview.html = loadWebview(context.extensionPath, '/');
     panel.webview.onDidReceiveMessage((msg) => handleMessage(msg, panel.webview));
   }));
 ${sidebarRegistrations ? '\n' + sidebarRegistrations : ''}
-${panelRegistrations ? '\n' + panelRegistrations : ''}
+${panelRegistrations ? '\n' + panelRegistrations : ''}${settingsListenerRegistration}
 }
 
 function deactivate() {}
@@ -110,6 +141,8 @@ function generateViewProvider(config: UnextensionConfig, view: ViewConfig): stri
       if (!outputs['${view.id}']) outputs['${view.id}'] = vscode.window.createOutputChannel('${view.title}');
       const channel = outputs['${view.id}'];
       webviewView.webview.html = loadWebview(this._context.extensionPath, '${route}');
+      activePanels.add(webviewView.webview);
+      webviewView.onDidDispose(() => activePanels.delete(webviewView.webview));
       this._context.subscriptions.push(webviewView.webview.onDidReceiveMessage((msg) => handleMessage(msg, webviewView.webview, channel)));
     } catch (err) {
       console.error('[unextension] Failed to load webview for ${config.name}.view.${view.id}:', err);
