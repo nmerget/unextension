@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'fs-extra'
-import type { UnextensionConfig } from '../../config.js'
+import type { UnextensionConfig, ViewConfig } from '../../config.js'
 import { defaultIconSvg } from '../shared.js'
 import { generateExtensionJs } from './extension.js'
 
@@ -64,8 +64,11 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
 
   const license = config.license || 'MIT'
   const views = config.views ?? []
-  const sidebarViews = views.filter((v) => (v.location ?? 'sidebar') === 'sidebar')
-  const panelViews = views.filter((v) => v.location === 'panel' || v.location === 'editor')
+  const loc = (v: ViewConfig) => v.location ?? 'sidebar'
+
+  const sidebarViews = views.filter((v) => loc(v) === 'sidebar')
+  const panelViews = views.filter((v) => loc(v) === 'panel')
+  const toolbarViews = views.filter((v) => loc(v) === 'toolbar')
 
   // Icons
   const iconsDir = path.join(outDir, 'icons')
@@ -86,7 +89,7 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
   const commands: object[] = [
     { command: `${config.name}.open`, title: `Open ${config.displayName}` },
   ]
-  const viewsContainers: { activitybar?: object[] } = {}
+  const viewsContainers: { activitybar?: object[]; panel?: object[] } = {}
   const viewsContrib: Record<string, object[]> = {}
   const activationEvents: string[] = [`onCommand:${config.name}.open`]
 
@@ -104,7 +107,21 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
     }
   }
 
-  for (const v of panelViews) {
+  if (panelViews.length > 0) {
+    viewsContainers.panel = panelViews.map((v) => ({
+      id: `${config.name}-${v.id}`,
+      title: v.title,
+      icon: `icons/${v.id}.svg`,
+    }))
+    for (const v of panelViews) {
+      viewsContrib[`${config.name}-${v.id}`] = [
+        { id: `${config.name}.view.${v.id}`, name: v.title, type: 'webview' },
+      ]
+      activationEvents.push(`onView:${config.name}.view.${v.id}`)
+    }
+  }
+
+  for (const v of toolbarViews) {
     commands.push({ command: `${config.name}.open.${v.id}`, title: `Open ${v.title}` })
     activationEvents.push(`onCommand:${config.name}.open.${v.id}`)
   }

@@ -3,8 +3,12 @@ import { toPascalCase } from '../shared.js'
 import { generateActions } from './actions.js'
 
 export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig[]): string {
-  const sidebarViews = views.filter((v) => (v.location ?? 'sidebar') === 'sidebar')
-  const panelViews = views.filter((v) => v.location === 'panel' || v.location === 'editor')
+  // Categorize views by location
+  const loc = (v: ViewConfig) => v.location ?? 'sidebar'
+
+  const sidebarViews = views.filter((v) => loc(v) === 'sidebar')
+  const panelViews = views.filter((v) => loc(v) === 'panel')
+  const toolbarViews = views.filter((v) => loc(v) === 'toolbar')
 
   // Generate allowlist constant injection when commands.allow is configured
   const commandsAllowLine = config.commands?.allow
@@ -17,7 +21,9 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
       ? `const settingsDefinitions = ${JSON.stringify(config.settings.map((s) => ({ key: s.key, default: s.default })))};\nconst extensionName = ${JSON.stringify(config.name)};\n`
       : ''
 
-  const viewProviders = sidebarViews.map((v) => generateViewProvider(config, v)).join('\n\n')
+  const viewProviders = [...sidebarViews, ...panelViews]
+    .map((v) => generateViewProvider(config, v))
+    .join('\n\n')
 
   const sidebarRegistrations = sidebarViews
     .map(
@@ -47,11 +53,21 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
       : ''
 
   const panelRegistrations = panelViews
+    .map(
+      (v) =>
+        `  context.subscriptions.push(\n    vscode.window.registerWebviewViewProvider('${config.name}.view.${v.id}', new ${toPascalCase(v.id)}ViewProvider(context))\n  );`,
+    )
+    .join('\n')
+
+  const editorRegistrations = toolbarViews
     .map((v) => {
       const route = v.route.replace(/\/\*$/, '')
+      const openIn = v.toolbar?.openIn ?? 'editor'
+      const viewColumn = openIn === 'editor' ? 'vscode.ViewColumn.One' : 'vscode.ViewColumn.Beside'
+      const statusBarIcon = v.toolbar?.vsCodeIcon ? `$(${v.toolbar.vsCodeIcon}) ` : ''
       return `  if (!outputs['${v.id}']) outputs['${v.id}'] = vscode.window.createOutputChannel('${v.title}');
   const statusBar${toPascalCase(v.id)} = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-  statusBar${toPascalCase(v.id)}.text = '$(layout-panel) ${v.title}';
+  statusBar${toPascalCase(v.id)}.text = '${statusBarIcon}${v.title}';
   statusBar${toPascalCase(v.id)}.command = '${config.name}.open.${v.id}';
   statusBar${toPascalCase(v.id)}.show();
   context.subscriptions.push(statusBar${toPascalCase(v.id)});
@@ -60,7 +76,7 @@ export function generateExtensionJs(config: UnextensionConfig, views: ViewConfig
     const panel = vscode.window.createWebviewPanel(
       '${config.name}.${v.id}',
       '${v.title}',
-      vscode.ViewColumn.Beside,
+      ${viewColumn},
       { enableScripts: true, localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'webview'))] }
     );
     activePanels.add(panel.webview);
@@ -104,7 +120,8 @@ function activate(context) {
     panel.webview.onDidReceiveMessage((msg) => handleMessage(msg, panel.webview));
   }));
 ${sidebarRegistrations ? '\n' + sidebarRegistrations : ''}
-${panelRegistrations ? '\n' + panelRegistrations : ''}${settingsListenerRegistration}
+${panelRegistrations ? '\n' + panelRegistrations : ''}
+${editorRegistrations ? '\n' + editorRegistrations : ''}${settingsListenerRegistration}
 }
 
 function deactivate() {}

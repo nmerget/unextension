@@ -8,25 +8,45 @@ export default defineConfig({
   description: 'A demo IDE extension built with unextension',
   icon: './src/assets/icon.svg',
   distDir: './dist',
-  spa: true,
   scriptsDir: './dist/scripts',
   targets: ['vscode', 'jetbrains'],
   jetbrains: {
     ideVersion: '2025.1',
   },
   views: [
+    // sidebar: inline in the sidebar
     {
-      id: 'explorer',
-      title: 'Showcase Explorer',
+      id: 'sidebar-view',
+      title: 'Sidebar View',
       route: '/',
       location: 'sidebar',
       icon: './src/assets/icon.svg',
     },
+    // panel: inline in the bottom panel
     {
-      id: 'panel',
-      title: 'Showcase Panel',
+      id: 'panel-view',
+      title: 'Panel View',
       route: '/panel',
       location: 'panel',
+      icon: './src/assets/icon.svg',
+    },
+    // toolbar + editor: toolbar icon opens in editor area
+    {
+      id: 'toolbar-editor',
+      title: 'Toolbar Editor',
+      route: '/editor',
+      location: 'toolbar',
+      icon: './src/assets/icon.svg',
+      toolbar: { openIn: 'editor', vsCodeIcon: 'browser' },
+    },
+    // toolbar + sidebar: toolbar icon opens in sidebar
+    {
+      id: 'toolbar-sidebar',
+      title: 'Toolbar Sidebar',
+      route: '/editor',
+      location: 'toolbar',
+      icon: './src/assets/icon.svg',
+      toolbar: { openIn: 'sidebar', vsCodeIcon: 'preview' },
     },
   ],
   settings: [

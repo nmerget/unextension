@@ -2,8 +2,9 @@ import path from 'node:path'
 import https from 'node:https'
 import fs from 'fs-extra'
 import type { UnextensionConfig } from '../../config.js'
-import { toPascalCase, escapeXml, defaultPluginIconSvg } from '../shared.js'
+import { toPascalCase, escapeXml, defaultPluginIconSvg, defaultToolbarIconSvg } from '../shared.js'
 import { generateToolWindowFactory } from './toolwindow.js'
+import { generateEditorAction } from './editor-action.js'
 import { generateAppSettingsState, generateProjectSettingsState } from './settings-state.js'
 import {
   generateSettingsConfigurable,
@@ -54,21 +55,28 @@ export async function buildJetBrains(config: UnextensionConfig, cwd: string) {
   const kotlinDir = path.join(outDir, 'src/main/kotlin/com/unextension')
   await fs.ensureDir(kotlinDir)
 
+  const toolWindowViews = views.filter((v) => (v.location ?? 'sidebar') !== 'toolbar')
+  const editorTabViews = views.filter((v) => v.location === 'toolbar')
+
   const toolWindowEntries =
-    views.length > 0
-      ? views
+    toolWindowViews.length > 0
+      ? toolWindowViews
           .map((v) => {
             const anchor = v.location === 'panel' ? 'bottom' : 'right'
             return `    <toolWindow id="${escapeXml(v.title)}"
                 factoryClass="com.unextension.${toPascalCase(v.id)}ToolWindowFactory"
                 anchor="${anchor}"
+                icon="/icons/${v.id}.svg"
                 secondary="false" />`
           })
           .join('\n')
-      : `    <toolWindow id="${escapeXml(config.displayName)}"
+      : views.length === 0
+        ? `    <toolWindow id="${escapeXml(config.displayName)}"
                 factoryClass="com.unextension.${toPascalCase(config.name)}ToolWindowFactory"
                 anchor="right"
+                icon="/META-INF/pluginIcon.svg"
                 secondary="false" />`
+        : ''
 
   // Generate settings registration entries for plugin.xml
   let settingsEntries = ''
@@ -110,8 +118,9 @@ export async function buildJetBrains(config: UnextensionConfig, cwd: string) {
 
   <extensions defaultExtensionNs="com.intellij">
     <notificationGroup id="unextension" displayType="BALLOON" />
-${toolWindowEntries}${settingsEntries}
+${toolWindowEntries}${editorTabViews.length > 0 ? '\n' + editorTabViews.map((v) => `    <fileEditorProvider implementation="com.unextension.${toPascalCase(v.id)}EditorProvider" />`).join('\n') : ''}${settingsEntries}
   </extensions>
+${editorTabViews.length > 0 ? `\n  <actions>\n    <group id="com.unextension.actions" text="${escapeXml(config.displayName)}" popup="true">\n      <add-to-group group-id="ToolsMenu" anchor="last" />\n${editorTabViews.map((v) => `      <action id="com.unextension.open.${v.id}" class="com.unextension.${toPascalCase(v.id)}EditorAction" text="Open ${escapeXml(v.title)}" description="Open ${escapeXml(v.title)} in editor tab" icon="/icons/${v.id}.svg" />`).join('\n')}\n    </group>\n${editorTabViews.map((v) => `    <action id="com.unextension.toolbar.${v.id}" class="com.unextension.${toPascalCase(v.id)}EditorAction" text="${escapeXml(v.title)}" description="Open ${escapeXml(v.title)}" icon="/icons/${v.id}.svg">\n      <add-to-group group-id="MainToolbarRight" anchor="last" />\n    </action>`).join('\n')}\n  </actions>\n` : ''}
 </idea-plugin>
 `
 
@@ -132,10 +141,32 @@ ${toolWindowEntries}${settingsEntries}
     await fs.writeFile(iconDestSvg, defaultPluginIconSvg(config.displayName))
   }
 
+  // Copy view icons to resources/icons/ for toolbar actions (scaled to 16x16 for JetBrains)
+  const iconsResDir = path.join(resourcesDir, 'icons')
+  await fs.ensureDir(iconsResDir)
+  for (const view of views) {
+    if (view.icon) {
+      const iconSrc = path.resolve(cwd, view.icon)
+      if (await fs.pathExists(iconSrc)) {
+        let svg = await fs.readFile(iconSrc, 'utf8')
+        // Scale SVG to 16x16 for JetBrains toolbar/tool window icons
+        svg = svg.replace(/(<svg[^>]*?)(\s+width=["'][^"']*["'])/i, '$1 width="16"')
+        svg = svg.replace(/(<svg[^>]*?)(\s+height=["'][^"']*["'])/i, '$1 height="16"')
+        // Add width/height if not present
+        if (!/width=/i.test(svg)) {
+          svg = svg.replace('<svg', '<svg width="16" height="16"')
+        }
+        await fs.writeFile(path.join(iconsResDir, `${view.id}.svg`), svg)
+        continue
+      }
+    }
+    await fs.writeFile(path.join(iconsResDir, `${view.id}.svg`), defaultToolbarIconSvg(view.title))
+  }
+
   const devMode = !!config.jetbrains?._devMode
   const hasSettings = !!(config.settings && config.settings.length > 0)
-  if (views.length > 0) {
-    for (const view of views) {
+  if (toolWindowViews.length > 0) {
+    for (const view of toolWindowViews) {
       const kt = generateToolWindowFactory(
         toPascalCase(view.id),
         view.route.replace(/\/\*$/, ''),
@@ -145,12 +176,25 @@ ${toolWindowEntries}${settingsEntries}
       )
       await fs.writeFile(path.join(kotlinDir, `${toPascalCase(view.id)}ToolWindowFactory.kt`), kt)
     }
-  } else {
+  } else if (views.length === 0) {
     const className = toPascalCase(config.name)
     await fs.writeFile(
       path.join(kotlinDir, `${className}ToolWindowFactory.kt`),
       generateToolWindowFactory(className, '/', devMode, config.commands?.allow, hasSettings),
     )
+  }
+
+  // Generate editor tab actions for editorTab views
+  for (const view of editorTabViews) {
+    const kt = generateEditorAction(
+      toPascalCase(view.id),
+      view.title,
+      view.route.replace(/\/\*$/, ''),
+      devMode,
+      config.commands?.allow,
+      hasSettings,
+    )
+    await fs.writeFile(path.join(kotlinDir, `${toPascalCase(view.id)}EditorAction.kt`), kt)
   }
 
   // Generate settings state files if settings are defined

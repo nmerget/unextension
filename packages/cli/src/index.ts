@@ -2,6 +2,11 @@ export { defineConfig } from './config.js'
 export type {
   UnextensionConfig,
   CommandsConfig,
+  ViewConfig,
+  ViewLocation,
+  ToolbarConfig,
+  ToolbarOpenIn,
+  VSCodeIcon,
   SettingType,
   SettingScope,
   SettingDefinitionBase,

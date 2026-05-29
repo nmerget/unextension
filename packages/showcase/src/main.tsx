@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { Home } from './routes'
 import { Panel } from './routes/panel'
+import { Editor } from './routes/editor'
 import './main.css'
 
 declare global {
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/panel" element={<Panel />} />
+        <Route path="/editor" element={<Editor />} />
       </Routes>
     </MemoryRouter>
   </StrictMode>,
