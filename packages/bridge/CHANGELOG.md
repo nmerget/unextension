@@ -1,5 +1,27 @@
 # @unextension/bridge
 
+## 0.4.0
+
+### Minor Changes
+
+- [#14](https://github.com/nmerget/unextension/pull/14) [`353ff93`](https://github.com/nmerget/unextension/commit/353ff937b7a242f2eb8047302dcc47c8546bbd86) Thanks [@nmerget](https://github.com/nmerget)! - feat: add plugin settings support
+
+  Extension authors can now define configurable settings in `unextension.config.ts`. Settings are scaffolded into each target IDE's native settings infrastructure:
+  - **VS Code**: `contributes.configuration` in `package.json` with settings change listener
+  - **JetBrains**: `SettingsConfigurable.kt` with `PersistentStateComponent` for persistence
+
+  A new `useSettings()` bridge action provides a reactive store that auto-updates when the user changes settings in the IDE.
+
+  ### New APIs
+  - `useSettings(defaults)` — creates a reactive `SettingsStore` with `get()` and `subscribe()` methods
+  - `SettingDefinition` types: `string`, `number`, `boolean`, `enum`
+  - `validateSettings()` — validates settings at build time (key format, type/default consistency, enum options)
+
+  ### CLI changes
+  - Settings validation runs during `unextension build` and `unextension sync`
+  - VS Code target generates `contributes.configuration` and `get-settings.js` action handler
+  - JetBrains target generates `AppSettingsState.kt`, `ProjectSettingsState.kt`, `SettingsConfigurable.kt`, and `GetSettings.kt`
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,50 @@
 # @unextension/cli
 
+## 0.4.0
+
+### Minor Changes
+
+- [#14](https://github.com/nmerget/unextension/pull/14) [`353ff93`](https://github.com/nmerget/unextension/commit/353ff937b7a242f2eb8047302dcc47c8546bbd86) Thanks [@nmerget](https://github.com/nmerget)! - feat: add plugin settings support
+
+  Extension authors can now define configurable settings in `unextension.config.ts`. Settings are scaffolded into each target IDE's native settings infrastructure:
+  - **VS Code**: `contributes.configuration` in `package.json` with settings change listener
+  - **JetBrains**: `SettingsConfigurable.kt` with `PersistentStateComponent` for persistence
+
+  A new `useSettings()` bridge action provides a reactive store that auto-updates when the user changes settings in the IDE.
+
+  ### New APIs
+  - `useSettings(defaults)` — creates a reactive `SettingsStore` with `get()` and `subscribe()` methods
+  - `SettingDefinition` types: `string`, `number`, `boolean`, `enum`
+  - `validateSettings()` — validates settings at build time (key format, type/default consistency, enum options)
+
+  ### CLI changes
+  - Settings validation runs during `unextension build` and `unextension sync`
+  - VS Code target generates `contributes.configuration` and `get-settings.js` action handler
+  - JetBrains target generates `AppSettingsState.kt`, `ProjectSettingsState.kt`, `SettingsConfigurable.kt`, and `GetSettings.kt`
+
+- [#14](https://github.com/nmerget/unextension/pull/14) [`353ff93`](https://github.com/nmerget/unextension/commit/353ff937b7a242f2eb8047302dcc47c8546bbd86) Thanks [@nmerget](https://github.com/nmerget)! - feat: add view location system with sidebar, panel, and toolbar support
+
+  Views now support three locations with distinct IDE behavior:
+  - `sidebar` — inline webview in the sidebar (VS Code activity bar, JetBrains right tool window)
+  - `panel` — inline webview in the bottom panel (VS Code bottom panel, JetBrains bottom tool window)
+  - `toolbar` — icon button that opens a webview (VS Code status bar, JetBrains main toolbar + Tools menu)
+
+  ### Toolbar views
+
+  Toolbar views use a `toolbar` config object:
+  - `toolbar.openIn` — where the webview opens: `'editor'` (center tabs) or `'sidebar'` (beside)
+  - `toolbar.vsCodeIcon` — VS Code codicon name for the status bar item (typed with autocomplete)
+
+  JetBrains toolbar views use the `icon` SVG (auto-scaled to 16×16) and open in editor tabs via FileEditorProvider.
+
+  ### Other changes
+  - Removed `spa`, `serverEntry`, `serverPort` from config (always SPA)
+  - Added `shellPath` to root config
+  - Added `ViewLocation`, `ToolbarConfig`, `ToolbarOpenIn`, `VSCodeIcon` types
+  - VS Code panel views now render in the bottom panel (not sidebar)
+  - JetBrains tool window icons now load correctly (registered in plugin.xml)
+  - Added views and settings documentation as separate pages
+
 ## 0.3.0
 
 ### Minor Changes
