@@ -6,9 +6,7 @@ description: Get up and running with unextension in minutes.
 ## 1. Install
 
 ```bash
-npm install -D unextension
-# or
-pnpm add -D unextension
+pnpm add -D @unextension/cli @unextension/bridge
 ```
 
 ## 2. Initialize
@@ -21,7 +19,11 @@ npx unextension init
 
 This will create `unextension.config.ts` (or `.js` if no `tsconfig.json` is found) and add `@types/vscode` to your `devDependencies`.
 
-## 3. Build your web app
+## 3. Configure views (optional)
+
+Add views to your config to register IDE panels. See the [Views](/configuration/views) documentation for details.
+
+## 4. Build your web app
 
 Build your web app to the `distDir` configured (default: `./dist`):
 
@@ -29,7 +31,7 @@ Build your web app to the `distDir` configured (default: `./dist`):
 npm run build
 ```
 
-## 4. Sync extension scaffolding
+## 5. Sync extension scaffolding
 
 Generate the VS Code and JetBrains extension output:
 
@@ -39,7 +41,7 @@ npx unextension sync
 
 This creates `output/vscode/` and `output/jetbrains/` with all necessary files.
 
-## 5. Build the extensions
+## 6. Build the extensions
 
 ```bash
 # Build both

@@ -7,6 +7,14 @@ export function defaultIconSvg(title: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="currentColor" stroke="none">${letter}</text></svg>`
 }
 
+export function defaultToolbarIconSvg(title: string): string {
+  const letter = (title?.[0] ?? '?').toUpperCase()
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <rect width="16" height="16" rx="3" fill="#6c71c4"/>
+  <text x="8" y="12" text-anchor="middle" font-size="10" font-family="sans-serif" font-weight="bold" fill="#ffffff">${letter}</text>
+</svg>`
+}
+
 export function defaultPluginIconSvg(title: string): string {
   const letter = (title?.[0] ?? '?').toUpperCase()
   return `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">

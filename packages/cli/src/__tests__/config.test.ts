@@ -18,24 +18,41 @@ describe('defineConfig', () => {
       name: 'my-ext',
       displayName: 'My Extension',
       version: '1.0.0',
-      spa: true,
       scriptsDir: './scripts',
       targets: ['vscode'],
       views: [{ id: 'main', title: 'Main', route: '/' }],
     })
-    expect(config.spa).toBe(true)
     expect(config.scriptsDir).toBe('./scripts')
     expect(config.targets).toEqual(['vscode'])
     expect(config.views).toHaveLength(1)
   })
 
-  it('accepts spa as object with shellPath', () => {
+  it('accepts shellPath option', () => {
     const config = defineConfig({
       name: 'my-ext',
       displayName: 'My Extension',
       version: '1.0.0',
-      spa: { shellPath: '_shell.html' },
+      shellPath: '_shell.html',
     })
-    expect(config.spa).toEqual({ shellPath: '_shell.html' })
+    expect(config.shellPath).toBe('_shell.html')
+  })
+
+  it('accepts toolbar config on views', () => {
+    const config = defineConfig({
+      name: 'my-ext',
+      displayName: 'My Extension',
+      version: '1.0.0',
+      views: [
+        {
+          id: 'main',
+          title: 'Main',
+          route: '/',
+          location: 'toolbar',
+          toolbar: { openIn: 'editor', vsCodeIcon: 'browser' },
+        },
+      ],
+    })
+    expect(config.views![0].toolbar?.openIn).toBe('editor')
+    expect(config.views![0].toolbar?.vsCodeIcon).toBe('browser')
   })
 })

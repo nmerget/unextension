@@ -21,3 +21,15 @@ const output = /** @type {any} */ (undefined)
 /** @type {string} */
 
 const extensionPath = /** @type {any} */ (undefined)
+
+/** @type {string} */
+
+const extensionName = /** @type {any} */ (undefined)
+
+/** @type {Array<{ key: string, type: string, default: unknown, description: string, scope?: string, options?: string[] }>} */
+
+const settingsDefinitions = /** @type {any} */ (undefined)
+
+/** @type {Set<import('vscode').Webview>} */
+
+const activePanels = /** @type {any} */ (undefined)

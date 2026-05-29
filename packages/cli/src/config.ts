@@ -1,3 +1,45 @@
+export type SettingType = 'string' | 'number' | 'boolean' | 'enum'
+export type SettingScope = 'global' | 'workspace'
+
+export interface SettingDefinitionBase {
+  /** Setting key in dot-notation (e.g. "editor.fontSize") */
+  key: string
+  /** Human-readable description shown in IDE settings UI */
+  description: string
+  /** Optional human-readable label for the setting */
+  title?: string
+  /** Scope of the setting (default: 'global') */
+  scope?: SettingScope
+}
+
+export interface StringSettingDefinition extends SettingDefinitionBase {
+  type: 'string'
+  default: string
+}
+
+export interface NumberSettingDefinition extends SettingDefinitionBase {
+  type: 'number'
+  default: number
+}
+
+export interface BooleanSettingDefinition extends SettingDefinitionBase {
+  type: 'boolean'
+  default: boolean
+}
+
+export interface EnumSettingDefinition extends SettingDefinitionBase {
+  type: 'enum'
+  default: string
+  /** Available choices for the enum dropdown */
+  options: string[]
+}
+
+export type SettingDefinition =
+  | StringSettingDefinition
+  | NumberSettingDefinition
+  | BooleanSettingDefinition
+  | EnumSettingDefinition
+
 export interface JetBrainsConfig {
   /** Open Chrome DevTools automatically (set internally by `unextension dev`) */
   _devMode?: boolean
@@ -33,9 +75,145 @@ export interface VSCodeConfig {
 }
 
 export type ViewLocation =
-  | 'sidebar'
-  | 'panel' // JetBrains: bottom tool window; VS Code: status bar item that opens a webview panel
-  | 'editor'
+  | 'sidebar' // Inline in the sidebar (VS Code: activity bar webview; JetBrains: right tool window)
+  | 'panel' // Inline in the bottom panel (VS Code: bottom panel webview; JetBrains: bottom tool window)
+  | 'toolbar' // Icon in the toolbar — use toolbarOpenIn to control where the webview opens
+
+export type ToolbarOpenIn =
+  | 'editor' // Opens in the main editor area (center tabs)
+  | 'sidebar' // Opens/focuses a sidebar tool window
+
+/**
+ * VS Code codicon name for status bar items.
+ * Common icons listed for autocomplete; any valid codicon string is accepted.
+ * Full list: https://code.visualstudio.com/api/references/icons-in-labels
+ */
+export type VSCodeIcon =
+  | 'add'
+  | 'alert'
+  | 'archive'
+  | 'beaker'
+  | 'bell'
+  | 'book'
+  | 'bookmark'
+  | 'browser'
+  | 'bug'
+  | 'calendar'
+  | 'check'
+  | 'checklist'
+  | 'circle-filled'
+  | 'circle-outline'
+  | 'clock'
+  | 'close'
+  | 'cloud'
+  | 'cloud-download'
+  | 'cloud-upload'
+  | 'code'
+  | 'comment'
+  | 'compass'
+  | 'copy'
+  | 'credit-card'
+  | 'dashboard'
+  | 'database'
+  | 'debug'
+  | 'device-desktop'
+  | 'device-mobile'
+  | 'edit'
+  | 'editor-layout'
+  | 'extensions'
+  | 'eye'
+  | 'file'
+  | 'files'
+  | 'filter'
+  | 'flame'
+  | 'folder'
+  | 'gear'
+  | 'gift'
+  | 'globe'
+  | 'graph'
+  | 'heart'
+  | 'history'
+  | 'home'
+  | 'inbox'
+  | 'info'
+  | 'key'
+  | 'layers'
+  | 'layout'
+  | 'library'
+  | 'lightbulb'
+  | 'link'
+  | 'list-flat'
+  | 'list-tree'
+  | 'lock'
+  | 'mail'
+  | 'map'
+  | 'megaphone'
+  | 'menu'
+  | 'milestone'
+  | 'note'
+  | 'notebook'
+  | 'open-preview'
+  | 'organization'
+  | 'output'
+  | 'package'
+  | 'paintcan'
+  | 'person'
+  | 'pin'
+  | 'play'
+  | 'plug'
+  | 'preview'
+  | 'project'
+  | 'pulse'
+  | 'question'
+  | 'quote'
+  | 'radio-tower'
+  | 'record'
+  | 'refresh'
+  | 'remote'
+  | 'repo'
+  | 'rocket'
+  | 'root-folder'
+  | 'rss'
+  | 'run'
+  | 'save'
+  | 'search'
+  | 'send'
+  | 'server'
+  | 'settings'
+  | 'settings-gear'
+  | 'shield'
+  | 'sign-in'
+  | 'sign-out'
+  | 'smiley'
+  | 'source-control'
+  | 'sparkle'
+  | 'star'
+  | 'stop'
+  | 'symbol-color'
+  | 'sync'
+  | 'table'
+  | 'tag'
+  | 'target'
+  | 'terminal'
+  | 'tools'
+  | 'trash'
+  | 'unlock'
+  | 'verified'
+  | 'versions'
+  | 'vm'
+  | 'wand'
+  | 'warning'
+  | 'window'
+  | 'workspace-trusted'
+  | 'zap'
+  | (string & {})
+
+export interface ToolbarConfig {
+  /** Where the webview opens when triggered from the toolbar (default: 'editor') */
+  openIn?: ToolbarOpenIn
+  /** VS Code codicon name for the status bar item (e.g. 'browser', 'preview'). Only used in VS Code. See https://code.visualstudio.com/api/references/icons-in-labels */
+  vsCodeIcon?: VSCodeIcon
+}
 
 export interface ViewConfig {
   /** Unique identifier for this view (kebab-case) */
@@ -44,10 +222,12 @@ export interface ViewConfig {
   title: string
   /** Web route pattern this view should load, e.g. '/toolbar' or '/toolbar/*' */
   route: string
-  /** Where to place the view in the IDE (default: 'sidebar') */
+  /** Where the view lives in the IDE (default: 'sidebar') */
   location?: ViewLocation
   /** Path to an SVG icon file relative to the project root. If omitted a default icon is generated. */
   icon?: string
+  /** Toolbar configuration. Only used when location is 'toolbar'. */
+  toolbar?: ToolbarConfig
 }
 
 /**
@@ -93,22 +273,10 @@ export interface UnextensionConfig {
    */
   scriptsDir?: string
   /**
-   * Enable SPA mode. All views share a single shell HTML; the active route is set via window.__UNEXTENSION_ROUTE__.
-   * - true: uses 'index.html' as the shell
-   * - { shellPath: '_shell.html' }: uses a custom shell file relative to distDir
+   * Custom shell HTML file path relative to distDir (default: 'index.html').
+   * The active route is set via window.__UNEXTENSION_ROUTE__.
    */
-  spa?: boolean | { shellPath: string }
-  /**
-   * Path to the SSR server entry relative to distDir (e.g. 'server/server.js').
-   * When set, the extension starts this server and loads views via http://localhost:serverPort.
-   * When omitted, the extension loads static files from distDir/client/index.html.
-   */
-  serverEntry?: string
-  /**
-   * Port the SSR server listens on (default: 3000).
-   * Only used when serverEntry is set.
-   */
-  serverPort?: number
+  shellPath?: string
   /** Target platforms to generate */
   targets?: Array<'vscode' | 'jetbrains'>
   /** IDE views / tool windows to register */
@@ -119,6 +287,8 @@ export interface UnextensionConfig {
   jetbrains?: JetBrainsConfig
   /** Command execution restrictions */
   commands?: CommandsConfig
+  /** Configurable settings exposed in the IDE's settings/preferences UI */
+  settings?: SettingDefinition[]
 }
 
 export function defineConfig(config: UnextensionConfig): UnextensionConfig {

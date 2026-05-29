@@ -18,6 +18,7 @@ import {
   spawnProcess,
   executeCommand,
   openInSimpleBrowser,
+  useSettings,
 } from '@unextension/bridge'
 import type { UnextensionCommand } from '@unextension/bridge'
 
@@ -266,6 +267,30 @@ export function KitchenSink() {
     }
   }
 
+  const handleUseSettings = () => {
+    add('⏳ useSettings…')
+    try {
+      const store = useSettings({ fontSize: 14, theme: 'dark', autoSave: true })
+      const values = store.get()
+      add(`⚙️ useSettings → ${JSON.stringify(values)}`)
+    } catch (e) {
+      add(`❌ useSettings error: ${e}`)
+    }
+  }
+
+  const handleSubscribeSettings = () => {
+    add('⏳ subscribe settings…')
+    try {
+      const store = useSettings({ fontSize: 14, theme: 'dark', autoSave: true })
+      store.subscribe((settings) => {
+        add(`⚙️ settings changed → ${JSON.stringify(settings)}`)
+      })
+      add('⚙️ subscribed to settings changes')
+    } catch (e) {
+      add(`❌ subscribe settings error: ${e}`)
+    }
+  }
+
   return (
     <div className="kitchen-sink">
       <h2>🧪 Kitchen Sink</h2>
@@ -329,6 +354,12 @@ export function KitchenSink() {
         </button>
         <button type="button" onClick={handleSpawnProcess}>
           spawnProcess
+        </button>
+        <button type="button" onClick={handleUseSettings}>
+          useSettings
+        </button>
+        <button type="button" onClick={handleSubscribeSettings}>
+          Subscribe Settings
         </button>
       </div>
       <div className="log">

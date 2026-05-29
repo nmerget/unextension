@@ -32,7 +32,9 @@ fun handleExecuteCommand(payload: org.json.JSONObject?, reply: org.json.JSONObje
     val result = when (command) {
         "unextension.openSettings" -> {
             com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
-                com.intellij.openapi.options.ShowSettingsUtil.getInstance().showSettingsDialog(project)
+                com.intellij.openapi.options.ShowSettingsUtil.getInstance().showSettingsDialog(
+                    project, null as com.intellij.openapi.options.Configurable?
+                )
             }
             org.json.JSONObject.NULL
         }

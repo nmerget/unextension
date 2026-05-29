@@ -1,12 +1,43 @@
 import path from 'node:path'
 import fs from 'fs-extra'
-import type { UnextensionConfig } from '../../config.js'
+import type { UnextensionConfig, ViewConfig } from '../../config.js'
 import { defaultIconSvg } from '../shared.js'
 import { generateExtensionJs } from './extension.js'
 
 const DEFAULT_ENGINE_VERSION = '>=1.85.0'
 const DEFAULT_TYPES_VSCODE_VERSION = '1.85.0'
 const DEFAULT_VSCE_VERSION = '3.0.0'
+
+/**
+ * Generates the VS Code `contributes.configuration` object from the extension's settings definitions.
+ * Maps setting types to VS Code configuration property types and scopes.
+ */
+export function generateVSCodeConfiguration(config: UnextensionConfig): object | undefined {
+  if (!config.settings || config.settings.length === 0) return undefined
+
+  const properties: Record<string, object> = {}
+
+  for (const setting of config.settings) {
+    const fullKey = `${config.name}.${setting.key}`
+    const prop: Record<string, unknown> = {
+      type: setting.type === 'enum' ? 'string' : setting.type,
+      default: setting.default,
+      description: setting.description,
+      scope: (setting.scope ?? 'global') === 'global' ? 'application' : 'resource',
+    }
+
+    if (setting.type === 'enum') {
+      prop.enum = setting.options
+    }
+
+    properties[fullKey] = prop
+  }
+
+  return {
+    title: config.displayName,
+    properties,
+  }
+}
 
 export async function buildVSCode(config: UnextensionConfig, cwd: string) {
   const distDir = path.resolve(cwd, config.distDir || './dist')
@@ -33,8 +64,11 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
 
   const license = config.license || 'MIT'
   const views = config.views ?? []
-  const sidebarViews = views.filter((v) => (v.location ?? 'sidebar') === 'sidebar')
-  const panelViews = views.filter((v) => v.location === 'panel' || v.location === 'editor')
+  const loc = (v: ViewConfig) => v.location ?? 'sidebar'
+
+  const sidebarViews = views.filter((v) => loc(v) === 'sidebar')
+  const panelViews = views.filter((v) => loc(v) === 'panel')
+  const toolbarViews = views.filter((v) => loc(v) === 'toolbar')
 
   // Icons
   const iconsDir = path.join(outDir, 'icons')
@@ -55,7 +89,7 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
   const commands: object[] = [
     { command: `${config.name}.open`, title: `Open ${config.displayName}` },
   ]
-  const viewsContainers: { activitybar?: object[] } = {}
+  const viewsContainers: { activitybar?: object[]; panel?: object[] } = {}
   const viewsContrib: Record<string, object[]> = {}
   const activationEvents: string[] = [`onCommand:${config.name}.open`]
 
@@ -73,7 +107,21 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
     }
   }
 
-  for (const v of panelViews) {
+  if (panelViews.length > 0) {
+    viewsContainers.panel = panelViews.map((v) => ({
+      id: `${config.name}-${v.id}`,
+      title: v.title,
+      icon: `icons/${v.id}.svg`,
+    }))
+    for (const v of panelViews) {
+      viewsContrib[`${config.name}-${v.id}`] = [
+        { id: `${config.name}.view.${v.id}`, name: v.title, type: 'webview' },
+      ]
+      activationEvents.push(`onView:${config.name}.view.${v.id}`)
+    }
+  }
+
+  for (const v of toolbarViews) {
     commands.push({ command: `${config.name}.open.${v.id}`, title: `Open ${v.title}` })
     activationEvents.push(`onCommand:${config.name}.open.${v.id}`)
   }
@@ -82,6 +130,10 @@ export async function buildVSCode(config: UnextensionConfig, cwd: string) {
   if (Object.keys(viewsContrib).length > 0) {
     contributes.viewsContainers = viewsContainers
     contributes.views = viewsContrib
+  }
+
+  if (config.settings && config.settings.length > 0) {
+    contributes.configuration = generateVSCodeConfiguration(config)
   }
 
   const packageJson: Record<string, unknown> = {

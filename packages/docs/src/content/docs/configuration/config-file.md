@@ -75,3 +75,11 @@ export default defineConfig({
 In the example above, `simpleBrowser.api.open` is an exact match, while `workbench.action.*` matches any command with a single segment after `workbench.action.` (e.g. `workbench.action.openSettings`) but does not match deeper segments (e.g. `workbench.action.editor.openSettings`).
 
 When a command is executed that does not match any entry in the allowlist, the request is rejected with the error `"Command not allowed: <id>"` and the command is not executed.
+
+### `settings`
+
+Configurable settings exposed in the IDE's native settings UI. See the [Settings](/configuration/settings) page for full documentation.
+
+### `views`
+
+IDE views and tool windows to register. See the [Views](/configuration/views) page for full documentation.

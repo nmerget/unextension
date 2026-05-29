@@ -27,7 +27,11 @@ export default defineConfig({
         },
         {
           label: 'Configuration',
-          items: [{ label: 'Config File', slug: 'configuration/config-file' }],
+          items: [
+            { label: 'Config File', slug: 'configuration/config-file' },
+            { label: 'Views', slug: 'configuration/views' },
+            { label: 'Settings', slug: 'configuration/settings' },
+          ],
         },
         {
           label: 'Targets',
@@ -81,6 +85,7 @@ export default defineConfig({
                 { label: 'spawnProcess', slug: 'bridge/spawn-process' },
               ],
             },
+            { label: 'Settings', slug: 'bridge/settings' },
             { label: 'Troubleshooting', slug: 'bridge/troubleshooting' },
           ],
         },
