@@ -1,5 +1,17 @@
 # @unextension/bridge
 
+## 0.5.0
+
+### Minor Changes
+
+- [#17](https://github.com/nmerget/unextension/pull/17) [`67bdc9c`](https://github.com/nmerget/unextension/commit/67bdc9c492b363a1a715706a4e30c86fe3ab3104) Thanks [@nmerget](https://github.com/nmerget)! - Add `openDiff` bridge action for native diff editor integration
+  - New `openDiff` function exported from `@unextension/bridge` that opens the IDE's native diff editor and returns a Promise resolving when the user accepts or rejects changes
+  - Supports whole-file and per-hunk accept/reject with `HunkDecision` array
+  - `autoApply` option to automatically write accepted changes to disk
+  - VS Code handler using `TextDocumentContentProvider` and `CodeLensProvider` for per-hunk controls
+  - JetBrains handler using `DiffManager` with notification-based Accept/Reject actions
+  - Full TypeScript types: `OpenDiffPayload`, `OpenDiffResult`, `HunkDecision`
+
 ## 0.4.0
 
 ### Minor Changes
