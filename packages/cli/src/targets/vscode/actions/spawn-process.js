@@ -12,7 +12,10 @@ const processRegistry = new Map()
  * @returns {void}
  */
 function spawnProcess(payload, reply, channel, webview) {
-  const command = payload?.command ?? ''
+  // Strip surrounding quotes that may have been included in the stored path
+  const rawCommand = payload?.command ?? ''
+  const command =
+    rawCommand.startsWith('"') && rawCommand.endsWith('"') ? rawCommand.slice(1, -1) : rawCommand
   const args = payload?.args ?? []
   const options = {}
 
