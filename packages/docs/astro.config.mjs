@@ -67,6 +67,7 @@ export default defineConfig({
                   label: 'openInSimpleBrowser',
                   slug: 'bridge/open-in-simple-browser',
                 },
+                { label: 'openDiff', slug: 'bridge/open-diff' },
               ],
             },
             {
