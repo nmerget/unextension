@@ -19,6 +19,7 @@ import {
   executeCommand,
   openInSimpleBrowser,
   useSettings,
+  openDiff,
 } from '@unextension/bridge'
 import type { UnextensionCommand } from '@unextension/bridge'
 
@@ -291,6 +292,22 @@ export function KitchenSink() {
     }
   }
 
+  const handleOpenDiff = async () => {
+    add('⏳ openDiff…')
+    try {
+      const result = await openDiff({
+        originalContent: 'const greeting = "hello";\n',
+        modifiedContent: 'const greeting = "hello, world!";\n',
+        title: 'Test Diff',
+        autoApply: false,
+      })
+      console.log('openDiff result:', result)
+      add(`📝 openDiff → accepted: ${result.accepted}, hunks: ${JSON.stringify(result.hunks)}`)
+    } catch (e) {
+      add(`❌ openDiff error: ${e}`)
+    }
+  }
+
   return (
     <div className="kitchen-sink">
       <h2>🧪 Kitchen Sink</h2>
@@ -360,6 +377,9 @@ export function KitchenSink() {
         </button>
         <button type="button" onClick={handleSubscribeSettings}>
           Subscribe Settings
+        </button>
+        <button type="button" onClick={handleOpenDiff}>
+          openDiff
         </button>
       </div>
       <div className="log">

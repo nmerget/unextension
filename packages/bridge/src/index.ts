@@ -154,3 +154,5 @@ export type { OpenInSimpleBrowserResult } from './actions/openInSimpleBrowser.js
 export type { TargetResult } from './actions/getTarget.js'
 export { useSettings } from './actions/useSettings.js'
 export type { SettingsStore } from './actions/useSettings.js'
+export { openDiff } from './actions/openDiff.js'
+export type { OpenDiffPayload, OpenDiffResult, HunkDecision } from './actions/openDiff.js'
