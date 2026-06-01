@@ -1,6 +1,6 @@
 ---
-"@unextension/bridge": minor
-"@unextension/cli": minor
+'@unextension/bridge': minor
+'@unextension/cli': minor
 ---
 
 Add `openDiff` bridge action for native diff editor integration
