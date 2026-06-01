@@ -84,11 +84,17 @@ export async function waitForVSCode(page: Page): Promise<void> {
 
 /**
  * Opens a view by its title in the activity bar.
+ * Supports both old (nested <a>) and new (direct tab) VS Code DOM structures.
  */
 export async function openView(page: Page, title: string): Promise<void> {
-  // In desktop VS Code, activity bar items have aria-label on the inner <a> element
-  const activityItem = page.locator(`.activitybar [role="tab"] a[aria-label*="${title}"]`).first()
-  await activityItem.click()
+  // VS Code ≥1.100 places aria-label directly on [role="tab"];
+  // older versions had it on an inner <a> element. Match either pattern.
+  const activityItem = page
+    .locator(
+      `.activitybar [role="tab"][aria-label*="${title}"], .activitybar [role="tab"] a[aria-label*="${title}"]`,
+    )
+    .first()
+  await activityItem.click({ timeout: 30_000 })
 }
 
 /**

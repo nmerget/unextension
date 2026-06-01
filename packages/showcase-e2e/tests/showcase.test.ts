@@ -24,17 +24,17 @@ test.describe('Unextension Showcase', () => {
   })
 
   test('Explorer view opens and shows the webview', async () => {
-    await openView(page, 'Showcase Explorer')
+    await openView(page, 'Sidebar View')
 
     // Wait for the webview iframe to appear
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await expect(webview.locator('h1')).toContainText('Unextension Showcase')
   })
 
   test('JS loads and bridge is ready', async () => {
-    await openView(page, 'Showcase Explorer')
+    await openView(page, 'Sidebar View')
 
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
 
     // Wait for the "JS loaded" log entry from the bridge
     await expect(webview.locator('.log div').filter({ hasText: 'JS loaded' })).toBeVisible({
@@ -43,9 +43,9 @@ test.describe('Unextension Showcase', () => {
   })
 
   test('Send ping button sends a message and receives a reply', async () => {
-    await openView(page, 'Showcase Explorer')
+    await openView(page, 'Sidebar View')
 
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'postMessage' }).click()
 
     // The reply should appear in the log
