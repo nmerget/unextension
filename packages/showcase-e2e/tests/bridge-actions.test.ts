@@ -10,7 +10,7 @@ test.beforeAll(
     app = launched.app
     page = launched.page
     await waitForVSCode(page)
-    await openView(page, 'Showcase Explorer')
+    await openView(page, 'Sidebar View')
   },
   { timeout: 120_000 },
 )
@@ -21,7 +21,7 @@ test.afterAll(async () => {
 
 test.describe('Bridge Actions', () => {
   test('notify action delivers notification', async () => {
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'notify' }).click()
     await expect(
       webview.locator('.log div').filter({ hasText: '🔔 notify → info sent' }),
@@ -29,7 +29,7 @@ test.describe('Bridge Actions', () => {
   })
 
   test('readProjectFile action reads file content', async () => {
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'readProjectFile' }).click()
     const logEntry = webview.locator('.log div').filter({ hasText: '📄 readProjectFile' })
     await expect(logEntry.filter({ hasText: 'chars' })).toBeVisible({ timeout: 10_000 })
@@ -37,7 +37,7 @@ test.describe('Bridge Actions', () => {
   })
 
   test('writeProjectFile action writes file content', async () => {
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'writeProjectFile' }).click()
     await expect(
       webview.locator('.log div').filter({ hasText: '✏️ writeProjectFile → success: true' }),
@@ -45,7 +45,7 @@ test.describe('Bridge Actions', () => {
   })
 
   test('runCommand action executes shell command', async () => {
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'runCommand' }).click()
     await expect(
       webview
@@ -55,7 +55,7 @@ test.describe('Bridge Actions', () => {
   })
 
   test('listProjectFiles action returns file listing', async () => {
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'listProjectFiles' }).click()
     const logEntry = webview.locator('.log div').filter({ hasText: '📁 listProjectFiles' })
     await expect(logEntry.filter({ hasText: 'file(s)' })).toBeVisible({ timeout: 10_000 })
@@ -63,7 +63,7 @@ test.describe('Bridge Actions', () => {
   })
 
   test('runScript action executes named script', async () => {
-    const webview = getWebviewFrame(page, 'unextension-showcase.view.explorer')
+    const webview = getWebviewFrame(page, 'unextension-showcase.view.sidebar-view')
     await webview.locator('button', { hasText: 'runScript' }).click()
     await expect(
       webview.locator('.log div').filter({ hasText: '🚀 runScript → exit' }),
