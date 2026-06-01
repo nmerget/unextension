@@ -1,5 +1,11 @@
 # @unextension/cli
 
+## 0.5.1
+
+### Patch Changes
+
+- [#19](https://github.com/nmerget/unextension/pull/19) [`5f25f79`](https://github.com/nmerget/unextension/commit/5f25f79284100deb77d29ef7a09f2a3505c346cd) Thanks [@nmerget](https://github.com/nmerget)! - Fix spawn-process handler failing on Windows when the command path contains surrounding quotes
+
 ## 0.5.0
 
 ### Minor Changes
