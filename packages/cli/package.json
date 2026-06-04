@@ -40,7 +40,7 @@
     "cosmiconfig": "9.0.1",
     "cosmiconfig-typescript-loader": "6.3.0",
     "fs-extra": "11.3.5",
-    "rollup": "4.60.4"
+    "rollup": "4.61.0"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.4",
