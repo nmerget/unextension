@@ -37,14 +37,14 @@
   },
   "dependencies": {
     "cac": "7.0.0",
-    "cosmiconfig": "9.0.1",
+    "cosmiconfig": "9.0.2",
     "cosmiconfig-typescript-loader": "6.3.0",
     "fs-extra": "11.3.5",
-    "rollup": "4.61.0"
+    "rollup": "4.61.1"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.4",
-    "@types/node": "25.9.1",
+    "@types/node": "25.9.2",
     "fast-check": "4.8.0",
     "typescript": "6.0.3"
   }

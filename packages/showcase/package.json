@@ -16,11 +16,11 @@
     "@unextension/bridge": "workspace:*",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "react-router-dom": "7.16.0"
+    "react-router-dom": "7.17.0"
   },
   "devDependencies": {
-    "@types/node": "25.9.1",
-    "@types/react": "19.2.16",
+    "@types/node": "25.9.2",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@unextension/cli": "workspace:*",
     "@vitejs/plugin-react": "6.0.2",

@@ -10,8 +10,8 @@
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",
-    "@vscode/test-electron": "2.5.2",
-    "@types/node": "25.9.1",
+    "@vscode/test-electron": "3.0.0",
+    "@types/node": "25.9.2",
     "playwright": "1.60.0",
     "typescript": "6.0.3"
   }
