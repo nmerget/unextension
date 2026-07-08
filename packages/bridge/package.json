@@ -36,8 +36,8 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "26.0.1",
-    "@vitest/browser": "4.1.9",
+    "@types/node": "26.1.0",
+    "@vitest/browser": "4.1.10",
     "fast-check": "4.8.0",
     "jsdom": "29.1.1",
     "typescript": "6.0.3"
